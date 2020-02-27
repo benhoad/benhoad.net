@@ -1,19 +1,19 @@
 {
-  "name": "nathanhoad",
+  "name": "benhoad",
   "version": "7.1.0",
-  "description": "The code that powers https://nathanhoad.net",
+  "description": "The code that powers https://benhoad.net",
   "private": true,
   "scripts": {
     "start": "hey run"
   },
-  "author": "Nathan Hoad",
-  "homepage": "https://github.com/nathanhoad/nathanhoad#readme",
+  "author": "Ben Hoad",
+  "homepage": "https://github.com/benhoad/benhoad#readme",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/nathanhoad/nathanhoad.git"
+    "url": "git+ssh://git@github.com/benhoad/benhoad.git"
   },
   "license": "ISC",
   "dependencies": {
-    "@nathanhoad/hey": "^1.4.0"
+    "@nathanhoad/hey": "^1.4.1"
   }
 }

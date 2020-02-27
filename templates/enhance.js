@@ -36,7 +36,7 @@ window.addEventListener("DOMContentLoaded", function() {
     var lines = [].slice.call(quote.children);
     var lastLine = lines[lines.length - 1];
 
-    if (lastLine.querySelector('a[href*="twitter.com/nathanhoad/status"]')) {
+    if (lastLine.querySelector('a[href*="twitter.com/benhoad/status"]')) {
       quote.className = "tweet";
       quote.removeChild(lastLine);
       lastLine.innerHTML = lastLine.innerHTML.replace("--", "");
@@ -100,23 +100,21 @@ window.addEventListener("DOMContentLoaded", function() {
         media = media.querySelector("img");
         break;
 
-      case "IMG":
-      // Do nothing. We already have the image
-
       case "VIDEO":
       // Do nothing. We already have the video
+        break;
+      case "IMG":
+      // Do nothing. We already have the image
 
       default:
         media = media.querySelector("img");
     }
-
     // No background found so bail early
     if (!media) return;
 
     section.className = "section-block";
 
     section.removeChild(section.firstElementChild);
-
     // Set up the fixed background
     var background = document.createElement("div");
     background.className = "block-background";

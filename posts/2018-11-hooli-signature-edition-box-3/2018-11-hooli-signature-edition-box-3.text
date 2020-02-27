@@ -1,0 +1,73 @@
+# Hooli Gavin Belson Signature Edition Box 3 - An Itx PC Chassis
+
+ - share: box3mod.jpg
+ - published: 2018-11-27 
+ - tags: stuff, tech, gaming, 3d
+
+<section data-type="wide">
+
+ ![Final product of the gavin belson signature edition box 3 modification](box3mod.jpg)
+
+</section>
+
+I've always been a fan of [HBO's Silicon Valley](https://en.wikipedia.org/wiki/Silicon_Valley_(TV_series) and I had always been looking for an excuse to build the [Signature Edition Box 3](https://www.youtube.com/watch?v=6KbRA2RjhgQ). I was almost tempted to build it for my last ITX build but opted instead for an RGB-rainbow-vomit Phantek's Shift build.
+
+My aim of this project was to build an ITX-compatible SFFPC case that in the interim could double as an EGPU. Initially my intent was to 3d print the entire thing from scratch but after discovering the [Silverstone ML08](https://www.silverstonetek.com/product.php?pid=607&area=en), which is a fairly slim HTPC style SFX-PSU case, I decided I could easily replace the front panel for the desired aesthetic without having to worry about mountings, power earthing, and structural quality. 
+
+![ml08 chassis](ml08.jpg)
+
+After disassembling the ML08 I set about measuring the front panel's mounting points and speculating on required parts. I ended up reusing both USB ports (replacing the serial connector that the box 3 should have) and with any luck find somewhere to attach the mic and headphone connections - they were nixed in the end as the pcb was too much of a hassle to mount cleanly and I didn't feel like the hidden magnetic door cover I had planned would be as seamless IRL.
+
+After many hours of tweaking I settled on this:
+
+![Cad designs for the faceplate](fusion360.jpg)
+
+[The 3d printable files + SVG for laser cutting can be found on my thingiverse page.](https://www.thingiverse.com/thing:4096255)
+
+## Extra Parts used:
+
+ - [Power button](https://www.banggood.com/Power-Symbol-Latching-Switch-LED-Light-Push-Button-SPST-p-1064278.html?rmmds=search&ID=223&cur_warehouse=CN)
+ - 3mm Green LED x4+ (1 for front panel, 3+ for backlight on logo)
+ - 3mm Red LED
+ - 5mm White LED
+ - Arduino (I actaully used a Netduino I had lying around) for the soft power latching - only needed for EGPU
+ - 3d Printer (or print service)
+ - Laser Cutter (or cutting service)
+ - Dremel for sanding/plastic welding
+
+I also used a USB 3.0 female header to usb-a male plugs, again for the sake of initial egpu use.
+
+ ![Image](assembly.jpg)
+
+The front panel was fabricated in 4 main parts; the front grill, the left button/LED section, the middle section, and the right USB IO section, these would all be printed in black PLA+ filament and then glued/welded together with a ton of sanding.
+
+The two attached logos are laser cut/etched with a white 3d printed insert on the signature to diffuse the green LED lights.
+
+To mount the Arduino and Omen Accelerator mainboard (the harvested TB3 EGPU logic board) to the ML08 I quickly CAD'd and printed an adapting bracket.
+
+![Image](itxadapter.jpg)
+
+One quirk (read: annoyance) with a lot of eGPU enclosures is that they don't have smart power latching, when I was [first researching eGPUs](/macbook-pro-2013-egpu) I assumed the newer TB3 models would only deliver power when they detect a laptop being connected however, at least with the Omen Accelerator, this didn't appear to be the case. 
+
+Normally this issue would just be solved by the main power switch on a PSU; which many [EXP GDC Beast](https://www.banggood.com/Mini-PCI-E-Version-V8_0-EXP-GDC-Beast-Laptop-External-Independent-Video-Card-Dock-p-1011222.html?cur_warehouse=CN) implementations get by with just fine. I wanted to actually be able to utilise the momentary power button on the front of the panel so I set about planning a circuit to ground the PS_ON pin on the standard ATX 24pin connector.
+
+A few resistors and a key NPN transistor later we ended up with something like this:
+
+<section data-type="wide">
+
+![Netduino rigged with a breadboard hat](arduino-headers.jpg)
+
+</section>
+
+The final version ended up hooking to a mutilated 24pin atx extension cable I had used for previous experiments. This cable provided the standby 5V power and ground connection needed for the Arduino and I crimped the PS_ON wire with a dupont connector should I reuse this for another experiment.
+
+For the most part this endeavour didn't require that much modifaction of the ML08 but more complete fabrication of the front panel. The Arduino, logic board bracket, usb io to type-a plugs, and custom 24pin cable were purely for the function of the egpu logic board.
+
+I will rewrite this post eventually with more detail and links to cad files/printable STLs for anyone else wanting to mod an ML08. Until then I'm just relishing in the end result.
+
+![Still image from the show Silicon Valley showing the working Hooli boxes](hoolibox1.png)
+
+![Front on image of the Hooli Box from the fake product's website](photo-box.png)
+
+
+<iframe width="100%" height="500" src="https://www.youtube.com/embed/eTshaSjxr9k" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

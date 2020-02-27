@@ -1,59 +1,31 @@
 <footer>
-  <form
-    action="https://nathanhoad.us4.list-manage.com/subscribe?u=02b7c08b783c10184c4a1ef63&id=c81513b13f"
-    method="post"
-    id="mc-embedded-subscribe-form"
-    name="mc-embedded-subscribe-form"
-    class="newsletter"
-    target="_blank"
-    novalidate
-  >
+  <div class="subfooter">
     <div>
       <p>
-        If you want to keep up to date with my adventures in game development
+        If you want to keep up to date with my random projects
         then you can
-        <a href="https://twitter.com/nathanhoad">follow me on Twitter</a> or
-        subscribe to my monthly newsletter.
+        <a href="https://twitter.com/benhoad">follow me on Twitter</a> 
+        and if you want to help me out with building some of these projects
+        then you can
+        <a href="https://www.paypal.me/BenjaminHoad/5">shout me a coffee or whatever.</a> 
       </p>
-      <input
-        type="email"
-        value=""
-        name="EMAIL"
-        class="email"
-        id="mce-EMAIL"
-        placeholder="email address"
-        required
-      />
-      <div style="position: absolute; left: -5000px;" aria-hidden="true">
-        <input
-          type="text"
-          name="b_02b7c08b783c10184c4a1ef63_c81513b13f"
-          tabindex="-1"
-          value=""
-        />
-      </div>
-      <input
-        type="submit"
-        value="Subscribe"
-        name="subscribe"
-        id="mc-embedded-subscribe"
-        class="button"
-      />
+
     </div>
-  </form>
+  </div>
+  
 
   <ul>
-    <li><a href="https://twitter.com/nathanhoad">Twitter</a></li>
-    <li><a href="https://github.com/nathanhoad">GitHub</a></li>
+    <li><a href="https://twitter.com/benhoad">Twitter</a></li>
+    <li><a href="https://github.com/benhoad">GitHub</a></li>
     <li>
-      <a href="https://www.youtube.com/channel/UCIdCxj0B9BXJ5tHXLgNWF6w"
+      <a href="https://www.youtube.com/channel/UCGxRytHqxnWn4kd7fBBRhDQ"
         >YouTube</a
       >
     </li>
-    <li><a href="https://nathanhoad.itch.io">Itch</a></li>
-    <li><a href="https://bynathanhoad.etsy.com">Etsy</a></li>
+    <li><a href="https://www.instagram.com/ben_hoad/">Instagram</a></li>
+    <li><a href="https://www.linkedin.com/in/ben-hoad">LinkedIn</a></li>
   </ul>
-  <aside>&copy <span><%= new Date().getFullYear() %></span> Nathan Hoad</aside>
+  <aside>&copy <span><%= new Date().getFullYear() %></span> Ben Hoad</aside>
 </footer>
 
 <script type="text/javascript">
@@ -61,4 +33,13 @@
   document.querySelector(
     "footer > aside > span"
   ).textContent = new Date().getFullYear();
+
+  var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-9426233-1']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
 </script>

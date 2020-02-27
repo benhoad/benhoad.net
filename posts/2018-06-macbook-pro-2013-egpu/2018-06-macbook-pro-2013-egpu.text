@@ -1,0 +1,69 @@
+# MacBook Pro 2013 eGPU
+
+ - share: laptop_egpu.jpg
+ - published: 2018-06-17
+ - tags: life, stuff, tech
+
+<section data-type="wide">
+
+![Macbook Pro and EGPU connected to external LG monitor](laptop_egpu.jpg)
+
+</section>
+
+As a birthday present for my partner; whom in the past had expressed her desire to play pc games and use CAD software; I decided to build her an eGPU for her old MacBook Pro 2013 as well as an external Windows-to-go setup.
+
+My research began at the end of last year where eGPUs were still just an emerging concept - at the time the most common setup was using some unsightly m-pcie ribbon cable ([EXP GDC Beast](https://www.banggood.com/Mini-PCI-E-Version-V8_0-EXP-GDC-Beast-Laptop-External-Independent-Video-Card-Dock-p-1011222.html "GDC Beast url")) and this required the sacrifice of, usually, the wireless card and not something particular geared towards MacBook Pro users.
+
+With the introduction of the [Razer Core](https://www.razerzone.com/gaming-systems/refurbished-razer-core) an eGPU connection over thunderbolt became possible and something of an accepted standard. (Currently MacOS is the only OS to official support eGPUs).
+
+Even though the Razer Core is Thunderbolt 3, Thunderbolt itself is just pcie combined with displayport (and power delivery). So, what does that mean? it means even Thunderbolt 1 and 2 will work with eGPUs as they're inherently PCIe connections.
+
+My first task was locating a Thunderbolt 2 to PCIe adapter eventually finding it in the [Akitio Thunder2](https://www.akitio.com/expansion/thunder2-pcie-box "akitio thunder 2 shop link"). Initially my plan was to take the mainboard out and combine it with my old GTX 780 inside a [Fractal Design Node 202](http://www.fractal-design.com/home/product/cases/node-series/node-202 "Fractal Design website"). My vision was to have an all-in-one product, having also mounted the Windows SSD inside the case utilising the Thunderbolt 2 daisychaining to effectively have a single cable back to the latop itself.
+
+Simple. Clean. Effective... ish.
+
+A few things changed while figuring out my eGPU plan, firstly the daisychaining of the SSD/HDD through the eGPU would hurt eGPU performance, not by anything major but given the Thunderbolt connection is already only utilising an effective PCIe 4x connection it's already only operating at 80-90% to begin with. Secondly the power hungry and large 780 GTX was only as performant as the current generation 1050Ti. Lastly, and probably the most annoying, building an eGPU out of something like the Thunder2 require external power for larger graphics cards (also factored into the GTX 780 considerations) which wasn't such an issue as I expected this and had spare PSU. This issue was the power delivery, a PSU has a digital switch to tell it to supply power - to tell it the computer is on. I thought "cool I can just fabricate a digital latch and hook it up to the Node 202's power button!" but the turn around time to have a proper PCB made was too long. After taking all of this into consideration I decided to adjust the goal. 
+
+So, new plan: Use the existing Akitio Thunder 2 chassis, pickup a PCI-powered GPU and make sure it's small enough to fit inside, source a larger barrel plug power supply as the akitio's is only 60W (30W of which are consumed by the circuitry), and figure out what can be done for the ssd/hdd.
+
+<section data-type="wide">
+
+![The NVidia Geforce 1050ti by EVGA mounted inside the Akitio Thunder 2 chassis](1050ti.jpg)
+
+</section>
+
+I'm a bit of an EVGA/NVidia fanboy so I couldn't go past the 1050Ti SC - the most powerful bus-powered GPU around as well as being oh so tiny (Especially next to my GTX 1070 FTW).
+
+After some hunting I managed to source a 12VDC 10A power supply that would suit the barrel plug from a local computer store; they were hesitant in selling it to me after I explained it was for an eGPU and insisting that it's not possible and that "it wasn't like a hard drive". Generally these types of power supplies are used for PicoPCs and as such a lot of my [conventional computer supplies](http://www.umart.com.au) didn't stock them.
+
+Now's a good time to point out one major advantage to just having the akitio handle the power delivery is that it only powers one when there's an active thunderbolt connection - so no external switches to consider.
+
+The only thing left was what to do about Windows.
+
+<section data-type="wide">
+
+![Astone dual bay RAID external 2.5 inch enclosure](astone.jpg)
+
+</section>
+
+My plan was to utilise the old drives from my 2010 MacBook Pro, it has an internal 256GB ssd (an $800 upgrade at the time T_T) and 500GB Seagate Momentus XT. I stumbled upon the Astone RD-2570, a dual 2.5" bay USB 3.1 enclosure that was capable of RAID for ~$50. It was perfect.
+
+The next step was to [create a Windows-to-Go drive](/2018-05-updated-windows-to-go/). Going down the "to-go" path means that the laptop won't have any internal storage sacrificed to a standard Windows Bootcamp install and as far the laptop is concerned it will be a standard MacBook Pro when all relevant cables are unplugged.
+
+<section data-type="wide">
+
+![Grand Theft Auto 5 running on the 2013 Macbook Pro](gta.jpg)
+
+</section>
+
+Given her Macbook Pro is a 13 inch it doesn't have a dGPU to contend with. A quick google of "error 12" will show some of the horrors of having to deal with a dGPU + eGPU - something I don't look forward to when I eventually build my eGPU.
+
+Installation of drivers was a breeze and thanks to recent updates with Nvidia drivers the 1050Ti can power games/apps running on the Macbook's internal screen (assuming it's an Intel CPU).
+
+After a reboot or two we now had a fully functioning gaming rig which transforms back into a Macbook Pro when "undocked".
+
+It's amazing to think I know have a 2013 Macbook Pro capable of running GTAV at 1440p @ 60Hz with a little box no bigger than a lunchbox... The next step is to get an extending micro b usb cable to hide the Astone enclosure and USB Hub.
+
+After the success of this project I'm now evaluating my options for my Macbook Pro 2016 - so far the leading contenders for eGPUs are the Mantiz Venus, the ASUS ROG XG Station 2, the Sonnet eGFX, and Akitio Node. I'm weighing up the idea of having an all-in-one solution like the Mantiz Venus (similar to the Powercolor Devilbox) or splitting the inputs so as to not pollute the eGPU thunderbolt connection.
+
+If you're interested in knowing more about eGPUs [tweet me at @benhoad](https://twitter.com/benhoad) or head over to [https://egpu.io/](https://egpu.io/).

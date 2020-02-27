@@ -1,8 +1,8 @@
 <img src="templates/footer.gif" />
 
-# Nathan Hoad
+# Ben Hoad
 
-The code that powers [https://nathanhoad.net](https://nathanhoad.net)
+The code that powers [https://benhoad.net](https://benhoad.net)
 
 ## Writing posts
 

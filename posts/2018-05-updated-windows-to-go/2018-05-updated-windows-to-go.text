@@ -1,0 +1,49 @@
+# Creating a Windows-to-go boot drive [Updated]
+
+ - share: windows.jpg
+ - published: 2018-05-28
+ - tags: life, stuff, tech
+
+<section data-type="wide">
+
+![Windows to Go graphic](windows.jpg)
+
+</section>
+
+In preparation of my eventual eGPU build I've been exploring the possibility of running Windows externally on my Macbook Pro so as to not waste any internal space by pre-allocating it to a bootcamp install (hence "sans Faustian Pact").
+
+
+## So to get started you'll need the following:
+
+ - [Windows ISO](https://www.microsoft.com/en-au/software-download/windows10ISO "Windows ISO Download Link") : Open link on Mac otherwise it'll provide an install instead of a direct ISO.
+ - [Rufus](https://rufus.akeo.ie/ "Rufus Download") : This does require a Windows PC - or if you've only got a Mac, it can be done using a VM with one of Microsoft's provided [IE Windows images](https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/).
+ - Some External drive, (USB, Thunderbolt) : In my case I've bought a [Samsung T3 500GB](https://www.samsung.com/us/computing/memory-storage/portable-solid-state-drives/portable-ssd-t3-500gb-mu-pt500b-am/ "Samsung T3 link")
+ - You might need an external keyboard and mouse. The touchbar Macbook Pro's keyboard that I have wouldn't respond until the drivers were installed.
+
+## Download Windows drivers
+
+On your mac open the bootcamp assistant. In the top bar there'll be an option; "Action", click that then select "Download Windows Support Software". This will then prompt you to select a location to download them to. These will be the drivers you will need later once Windows has finished setting up.
+
+## Make the boot drive
+
+With the ISO downloaded and Rufus opened, select the external drive from the Device list - If it doesn't appear you may have to click "Advanced Options" and check the box "Show USB Hard Drives".
+
+Click the Disc/HDD icon to select the Windows ISO. Make sure the "Windows To Go" radio button is selected. Click "Start" and wait for it to finish; it will take some time. After it's done you might want to copy the Windows drivers downloaded at the start to either the external drive you've formatted to Windows To Go or to a secondary USB key.
+
+## Boot into Windows
+
+Turn the mac off. Plug the external "Windows To Go" drive into the Mac. Turn the Mac on while holding the alt key.
+
+Eventually you'll be greeted with the boot icons. You should see at least two icons; one being the standard MacOS ssd, the other being Windows - labelled "EFI_Boot".
+
+Click "EFI_Boot" and hit enter.
+
+This part should feel like a standard Windows install but it'll be storing all Windows configurations on the external drive. One important thing to note with this install is that every time you want to boot into Windows you'll need to hold the alt key and do the above. This includes any time Windows reboots while first setting up. If you walk away while it's installing and you find yourself booted into MacOS, don't fret, just reboot, hold alt, and continue the install.
+
+Another important thing to know is that Windows will require a Serial Key eventually (you can skip it when installing to test if this process will even work for you).
+
+You may also need to connect a keyboard and mouse to complete the install. Whether or not this is necessary comes down to the version of the Macbook Pro, it's different per version so it's better just to have them on-hand.
+
+## Install drivers
+
+In Windows locate the drivers you downloaded earlier, inside the "WindowsSupport" folder there'll be another called "Bootcamp", inside that folder there'll be a "Setup.exe". Double click to run "Setup.exe" and that'll be it. Apple bundles all the drivers you'll need and they're maintained by the standard Apple Support Software.

@@ -11,9 +11,10 @@ body > footer {
 
     font-family: Arial, Helvetica, sans-serif;
     text-align: center;
-    margin: 90px 0 10px 0;
+    margin: 0px 0 10px 0;
     padding-top: 150px;
-    background: url(/footer.gif) no-repeat top center;
+    background: url(/twitter-circle.png) no-repeat top center;
+    background-size: 120px;
     color: #666;
 
     & > li {
@@ -39,7 +40,7 @@ body > footer {
   }
 }
 
-.newsletter {
+.subfooter {
   padding: 40px 0;
 
   & > div {
