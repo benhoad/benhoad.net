@@ -1,4 +1,4 @@
-<img src="templates/footer.gif" />
+<img src="templates/share.jpg" />
 
 # Ben Hoad
 
