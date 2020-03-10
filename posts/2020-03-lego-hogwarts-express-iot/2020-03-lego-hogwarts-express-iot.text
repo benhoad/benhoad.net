@@ -1,45 +1,21 @@
-# LEGO® Hogwarts Express IoT
+# A LEGO® Hogwarts Express powered by magic (and IoT)
 
  - share: lego-hogwarts.png
  - published: 2020-03-23
  - tags: code, learning, stuff, tech
 
-
-
-## Introduction
-
-This project started out as being a basic Christmas tree train; I'd never had a proper train set growing up and thought I'd indulge my younger self now. 
-
-The issue with most offerings was if you wanted a decent quality set you'd have to go down the rabbit hole of scale model trains and my initial aim was to get this built asap. Another issue with the cheaper sets was that they were themed almost exclusively to Christmas which was not only aesthetically limiting but also a sign of their intended lifespan. 
-
-Being a massive fan of LEGO&#174; it was a no-brainer to opt for one of their sets given their well-known quality and consistent standards when it comes to their train kits/tracks. After scoping out the options the Hogwarts Express was the perfect choice given the aim of making the train "smart" would give the illusion of "magic"... and it's also just a beautifully detailed model.
-
-The Hogwarts Express kit provided two straight up challenges; firstly, the set isn't motorised by default, and secondly, the kit doesn't come with a track in the box but thankfully it is designed to work on the standard LEGO&#174; train tracks which can be found almost anywhere.
-
-Plenty of solutions exist for motorising LEGO&#174; trains, one of the most popular being electrified tracks. Electrifying the tracks on my project wasn't going to be a safe option largely due to my cat being a fluffy little gremlin that enjoys removing low hanging tree decorations, especially those that are shiny and metallic - they would just end up dropping and shorting the tracks.
-
-<section data-type="wide">
+<section data-type="pull-right">
 
 ![The LEGO Hogwarts express box art](lego-hogwarts.png)  
 _This project was meant to be started and finished in the space of 3-4 weeks prior to Christmas 2018; I was optimistic at best._
 
 </section>
 
-The safest solution was internal rechargeable li-ion batteries, but I'm not a fan of pulling out batteries to recharge and the persisting wifi connection would result in a slow power draw meaning repeated charging would be unavoidable. 
+This project started out as being a basic Christmas tree train but ended up being so much more.
 
-The solution; a compact Uninterrupted Power Supply (UPS) setup leveraging a Qi charging circuit to maintain a power connection when the train is stationary at Platform 9&frac34;.
+Being a massive fan of LEGO&#174; it was a no-brainer to opt for one of their sets given their well-known quality and consistent standards when it comes to their train kits/tracks. 
 
-The project can be best categorised into four phases; 
-
- - Phase 1: Motorisation
-
- - Phase 2: Independant operation with bespoke power
-
- - Phase 3: Wifi Ability
-
- - Phase 4: Basic Homekit control
-
- - Appendix: Parts list & future plans
+After scoping out the options the Hogwarts Express was the perfect choice given the aim of making the train "smart" would give the illusion of "magic"... 
 
 <section data-type="block">
 
@@ -47,85 +23,70 @@ The project can be best categorised into four phases;
   <source src="train-homekit-test.mp4" type="video/mp4">
 </video>
 
+...and it's also just a beautifully detailed model.
+
 The end result being a Homekit controlled "smart" LEGO&#174; train that docks to charge when not in use.
 
+But how did we get here?
+
 </section>
+
+The Hogwarts Express kit provided two straight up challenges; firstly, the set isn't motorised by default, and secondly, the kit doesn't come with a track in the box but thankfully it is designed to work on the standard LEGO&#174; train tracks which can be found almost anywhere.
+
+The safest solution for powering the train was internal rechargeable li-ion batteries. I'm not a fan of pulling out batteries to recharge and the persisting wifi connection would result in a slow power draw meaning repeated charging would be unavoidable. 
+
+The solution was a compact Uninterrupted Power Supply (UPS) setup leveraging a Qi charging circuit to maintain a power connection when the train is stationary at Platform 9&frac34;.
+
+----
 
 ## Phase 1: Motorisation
 
-I'm not the first to motorise the Hogwarts Express kit, plenty of videos exist of people who've already modified the train to run using the existing Power Functions offering from LEGO&#174; themselves. 
+While there are plenty of other motorized Hogwarts Express projects floating around the Internet, most of them came with a level of aesthetic modification that I didn't like.
 
-My one issue I took with some of the popular Hogwarts Express conversions was with the level of exterior aesthetic modification needed to suit their drivetrain. 
+After looking at a few of the other projects I figured the best method was to conceal the motor entirely. 
 
-One resulted in the forward section of the train's cab being oddly enlarged to suit a downward facing motor, another had the motor hang halfway out the back of the cab to position the gearing just above the back axle, and the most popular/easiest method I found was to rebuild an enlarged coal tender to suit the 9V electrified wheel train motor box.
+To preserve the original look, I would need to custom 3D print a gearbox housing to drive the rear axle, combined with a standard [LEGO&#174; Power Functions M-Motor](https://www.lego.com/en-au/product/lego-power-functions-m-motor-8883). 
 
-After looking at these I figured the best method to conceal the motor entirely, and preserve the original look, was to use a custom 3dprinted gearbox housing to drive the rear axle combined with a standard [LEGO&#174; Power Functions M-Motor](https://www.lego.com/en-au/product/lego-power-functions-m-motor-8883). 
+LEGO&#174; don't provide detailed spec of their Power Functions motors but given their popularity among hobbyists plenty of details exist on various forums and websites. In particular this one was extremely helpful as [it compared almost all of the LEGO&#174; motors that have ever existed](https://www.philohome.com/motors/motorcomp.htm). 
 
-LEGO&#174; don't provide detailed spec of their Power Functions motors but given their popularity among hobbyists plenty of details exist on various forums and websites, and in particular this one was extremely helpful as [it compared almost all of the LEGO&#174; motors that have ever existed](https://www.philohome.com/motors/motorcomp.htm). 
+When it came to modifying the train I had a rule: _no mututation to any LEGO&#174; bricks_. Any reshaping would have to occur with bricks from other sets or be 3D printed from scratch. 
 
-When it came to modifying the train I had a few rules, primarily, no mututation to any LEGO&#174; bricks, it would be sacrilege, therefore any reshaping would have to occur with bricks from other sets or anything that doesn't strictly exist in LEGO&#174; form must be 3d printed from scratch. 
+<section data-type="pull-right">
 
-The one time I broke the no mutilation rule was when it came to exposing the M-Motor's wiring, but to avoid modifying the motor itself I instead clipped the connector from an unused [control switch](https://www.lego.com/en-au/product/lego-power-functions-control-switch-8869) and attached that to the motor's propiety connector and eventually crimped some standard dupont connectors onto the four exposed wires.
-
-After deciding on my motor and general position within the engine the next step was to size everything up in Fusion 360. From there it was a matter of playing with gears to see how I could drive the rear axle using conventional LEGO&#174; gearing, eventually settling on a direct drive setup. 
-
-<section data-type="wide">
-
-![Image](train-cad-gearbox.jpg)
+![Image](train-cad-gearbox.jpg)  
+_The first few versions relied on a worm gear setup however the ratio resulted in rediculously slow locomotion. I eventually settled on a direct drive setup._
 
 </section>
 
-<label>
-The first few versions relied on a worm gear setup however the ratio resulted in rediculously slow locomotion.
-</label>
+The one time I broke the no mutilation rule was when it came to exposing the M-Motor's wiring, but to avoid modifying the motor itself I instead clipped the connector from an unused [control switch](https://www.lego.com/en-au/product/lego-power-functions-control-switch-8869) and attached that to the motor's propiety connector and eventually crimped some standard dupont connectors onto the four exposed wires.
 
-The next step was to figure out the best way to conceal the motor without too much external disruption. Utilizing enthusiast LEGO&#174; CAD libraries I was able to find some parts that could replace some of the internal structure and shell while also matching colours. 
+The next step was to size everything up in Fusion 360 where it was a matter of playing with gears to see how I could drive the rear axle using conventional LEGO&#174; gearing. 
 
-The best "donor" kit I found was the [LEGO&#174; "Burger Bar Fire Rescue"](https://www.lego.com/en-au/product/burger-bar-fire-rescue-60214). Specifically replacing four pieces of the furnace assembly walls with just two that resulted in a larger interal cavity but looked exactly the same on the outside. (the two "WALL ELEMENT 1X4X3" from the Burger Fire kit)
+Then I had to figure out the best way to conceal the motor without too much external disruption. Utilizing enthusiast LEGO&#174; CAD libraries I was able to find some parts that could replace some of the internal structure and shell while also matching colours. 
+
+The best "donor" kit I found was the [LEGO&#174; "Burger Bar Fire Rescue"](https://www.lego.com/en-au/product/burger-bar-fire-rescue-60214). Specifically replacing four pieces of the furnace assembly walls with just two that resulted in a larger interal cavity but looked exactly the same on the outside.
+
 This slight modification allowed the motor to sit further forward from the cab and into the furnace/boiler cavity.
-
-
 
 <section data-type="gallery" data-layout="2">
 
 ![Image](train-3dprints.jpg)  
-_The 3d printed housing went through many iterations._
+_The 3D printed housing went through many iterations._
 
 ![Image](train-bottom-axles.jpg)  
 _Eventually an all-LEGO&#174; assembly was used._
 
 </section>
 
-A few months after settling on this 3d printed configuration I'd discovered LEGO&#174;'s [Pick A Brick](https://www.lego.com/en-au/page/static/pick-a-brick) service was open to Australia and ended up redesigning the drivetrain to be 100% LEGO&#174; bricks and was able to move the motor further inside the boiler cavity. 
+A few months after settling on this 3D printed configuration I'd discovered LEGO&#174;'s [Pick A Brick](https://www.lego.com/en-au/page/static/pick-a-brick) service was open to Australia and ended up redesigning the drivetrain to be 100% LEGO&#174; bricks and was able to move the motor further inside the boiler cavity. 
 
 This configuration also allowed for both axles to be driven.
 
-
-
-
-<section data-type="block">
-
-<video width="100%"  loop autoplay playsinline muted="muted">
-  <source src="train-test.mp4" type="video/mp4">
-</video> 
-
-Initial testing was carried out with the default Power Function 9v AA x6 Battery Pack.
-
-This test utilizes the final iteration of the 3d printed drivetrain. If you look carefully you'll notice the forward large train wheels only rotate periodically when they scuff the track. 
-
-This was fixed with both the dual axle drivetrain revision and updating the selected rubber o-rings that surround the larger wheels; without these o-rings the train lacks suffcient traction.
-
-</section>
-
-
-
-
+----
 
 ## Phase 2: Independant operation
 
 The power requirements were simple; a 9V supply for the motor, 5V supply for the microcontroller, a simple method to charge without human intervention, and enough battery life to run a few minutes without running flat.
-
-
 
 <section data-type="block" data-colour="light">
 
@@ -141,34 +102,27 @@ Thankfully by design the passenger car disassembles with relative ease.
 </p>
 
 <p data-frame="60">
-Two lithium-ion <span class="lime">16850 batteries</span> with external protection circuits provide the off-grid power and are charged using the <span class="copper">Qi coil</span> housed in the custom underbelly.
+Two lithium-ion <strong class="lime">16850 batteries</strong> with external protection circuits provide the off-grid power and are charged using the <strong class="copper">Qi coil</strong> housed in the custom underbelly.
 </p>
 
 <p data-frame="90">
-The UPS board takes the <span class="orange">5V</span> input from the Qi charging circuit to trickle charge the <span class="pink">3.7V</span> li-ion batteries and provides a boosted output voltage of <span class="red">9V</span>. 
+The UPS board takes the <strong class="orange">5V</strong> input from the Qi charging circuit to trickle charge the <strong class="pink">3.7V</strong> li-ion batteries and provides a boosted output voltage of <strong class="red">9V</strong>. 
 </p>
 <p data-frame="90">
-While the <span class="red">9V</span> output is ideal for the motor, a lower <span class="orange">5V</span> supply provided by the buck converter is required for the microcontroller.
+While the <strong class="red">9V</strong> output is ideal for the motor, a lower <strong class="orange">5V</strong> supply provided by the buck converter is required for the microcontroller.
 </p>
 
 <p data-frame="120">
-To allow for simple connection of the engine motor I routed the <span class="red">9V</span> supply, the motor conrol's <span class="blue">A1</span> and <span class="yellow">A2</span> pins, and a ground connection to four angled inline pins on the protoboard. 
+To allow for simple connection of the engine motor I routed the <strong class="red">9V</strong> supply, the motor conrol's <strong class="blue">A1</strong> and <strong class="yellow">A2</strong> pins, and a ground connection to four angled inline pins on the protoboard. 
 </p>
 
 <p data-frame="150">
 With the motor cable terminated with dupont connectors and the easily accessible angled pins, the passenger car and engine could be connected and separated without any deconstruction.
 </p>
 
-</section>
-
-<section>
-
-Not shown in the 3d model was the jumper used to isolate the microcontroller from the onboard power and the 16850 cradles used to avoid soldering connector wires directly to the naked batteries. 
-
-Safety and modularity were key considerations in this project.
+Not shown in the 3D model was the jumper used to isolate the microcontroller from the onboard power and the 16850 cradles used to avoid soldering connector wires directly to the naked batteries. Safety and modularity were key considerations in this project.
 
 </section>
-
 
 <section data-type="block">
 
@@ -176,17 +130,19 @@ Safety and modularity were key considerations in this project.
   <source src="train-power-test.mp4" type="video/mp4">
 </video>
 
-Working under bespoke battery power with basic motor control programming on the microcontroller and final four wheel drive configuration.
+The train was now Working under bespoke battery power with basic motor control programming on the microcontroller and final four wheel drive configuration.
 
 </section>
 
+The largest hurdle with the power supply was getting the Qi reciever coil as close to the Qi power transmitter as possible. 
 
-The largest hurdle with the power supply was getting the Qi reciever coil as close to the Qi power transmitter as possible. The first step; creating an underbelly that gets as close to the top of the tracks as possible without scraping and that is slimmer than the width of the passenger car but cavernous enough to house the entire Qi coil. Second step; create a compatible track piece that can replace a standard straight piece and house the Qi transmitter.
+The first step was creating an underbelly that gets as close to the top of the tracks as possible without scraping and that is slimmer than the width of the passenger car but cavernous enough to house the entire Qi coil. And then to create a compatible track piece that can replace a standard straight piece and house the Qi transmitter.
 
-Thankfully step one was largely solved from leftover parts from other kits (some inverted slopes and 4x1/6x1 bricks), albeit the colours did not match. 
+Thankfully step one was largely solved from leftover parts from other kits (some inverted slopes and 4x1/6x1 bricks), albeit the colours did not match.
+
 To get the final complete black look I ordered the same blocks, all in black, from LEGO's Pick a Brick service. 
 
-In order to get the bottom piece as slim as possible I 3d printed a 6x6 baseplate with only edge studs and the middle section (where the Qi coil sits) being only 4 layers thick.
+In order to get the bottom piece as slim as possible I 3D printed a 6x6 baseplate with only edge studs and the middle section (where the Qi coil sits) being only 4 layers thick.
 
 <section data-type="wide">
 
@@ -198,60 +154,72 @@ _Rare earth magnet is pressed into place and held by friction._
 
 </section>
 
-The second step required some planning, initially my hope for docking was to detect the power delivery and stop the train to remain perfectly above the Qi transmitter, however the Qi "handshake" took longer than expected and as a result I needed another way to detect the charging track section. 
+The second step required some planning. Initially my hope for docking was to detect the power delivery and stop the train to remain perfectly above the Qi transmitter, however the Qi "handshake" took longer than expected and as a result I needed another way to detect the charging track section. 
 
 I played with a few ideas using some salvaged switches from a DVD drive but the reliability was slim so I eventually settled on a hall sensor mounted ahead of the Qi coil and an embedded rare earth magnet in the track. 
 
 The final charging section was printed in two parts; the main base station and the overhanging track section. 
 
-This setup was perfectly fine for the first few days of use but as I suspected, and later discovered, the combination of the weight of the passenger car sitting on the track and the heat generated from the Qi transmitter while charging weakened the PLA and over time the overhanging rail sagged. 
+This setup was perfectly fine for the first few days of use but as I suspected, and later confirmed, the combination of the weight of the passenger car sitting on the track and the heat generated from the Qi transmitter while charging weakened the PLA and over time the overhanging rail sagged. 
 
 The heat wasn't alarming, just high enough to be a problem and so replacement pieces were printed in ABS.
 
+<section data-type="wide">
 
-
-<section data-type="block">
-
-<video width="100%"  loop autoplay playsinline muted="muted">
-  <source src="train-hall-test.mp4" type="video/mp4">
-</video>
-
-Testing basic code to react to the presence of the dock magnet. Note the wheels' speed above.
+<figure>
+  <video width="100%"  loop autoplay playsinline muted="muted">
+    <source src="train-hall-test.mp4" type="video/mp4">
+  </video>
+  <figcaption>
+    Testing basic code to react to the presence of the dock magnet. Note the wheels' speed above.
+  </figcaption>
+</figure>
 
 </section>
+
+----
 
 ## Phase 3: Wifi ability
 
-The microcontroller I chose for this project was the [Wemos (now Lolin) D1 Mini](https://docs.wemos.cc/en/latest/d1/d1_mini.html), a small, simple, arduino-compatible board based on the ESP-8266EX meaning it has inherent wifi capabilities, the key to this project. At this stage in the project I had already assembled the basic Wemos stack that comprised the "brains" of the train for the sake of testing. 
+The microcontroller I chose for this project was the [Wemos (now Lolin) D1 Mini](https://docs.wemos.cc/en/latest/d1/d1_mini.html), a small, simple, arduino-compatible board based on the ESP-8266EX. It had inherent wifi capabilities, the key to this project. 
+
+At this stage in the project I had already assembled the basic Wemos stack that comprised the "magic" of the train for the sake of testing. 
 
 The Wemos D1 Mini is sandwiched between a [motor shield ](https://docs.wemos.cc/en/latest/d1_mini_shiled/motor.html) and a D1 mini shaped [protoboard shield](https://docs.wemos.cc/en/latest/d1_mini_shiled/protoboard.html). 
 
-It is worth mentioning at this point I learned that the default firmware on the motor control shield was broken from the factory as I had a V1.0.0 - [this post explains how to flash the shield with fixed firmware](https://hackaday.io/project/18439-motor-shield-reprogramming) - The method requires a USB to serial adapter but a D1 Mini can work in its place as an intermediary. 
+At this point I learned that the default firmware on the motor control shield was broken from the factory as I had a V1.0.0. I had to [flash the shield with fixed firmware](https://hackaday.io/project/18439-motor-shield-reprogramming) (the method requires a USB to serial adapter but a D1 Mini can work in its place as an intermediary). 
 
-Rather than posting code blocks here I have compiled everything into a single Github repo: [https://github.com/benhoad/lego-hogwarts-express-iot](https://github.com/benhoad/lego-hogwarts-express-iot) - Including relevant STLs for 3d printing, keep in mind a lot of the code is still WIP (read 'rushed'...)
+Rather than posting code blocks here I have compiled everything into a single [GitHub repo](https://github.com/benhoad/lego-hogwarts-express-iot), including relevant STLs for 3D printing (keep in mind a lot of the code is still a work in progress).
 
-The tldr; of it is the Wemos D1 Mini initially connects itself to the predefined wifi credentials and instantiates a simple web server to listen for requests. Much like any web server it's just a matter of setting up your routes and defining responses. I've set up some basic routes that return JSON objects containing the train's state, as well as handling some requests that will update some exposed configuration options.
+The _tldr;_ of it is the Wemos D1 Mini initially connects itself to the predefined wifi credentials and instantiates a simple web server to listen for requests. Much like any web server it's just a matter of setting up your routes and defining responses. 
 
-<section data-type="block">
+I've set up some basic routes that return JSON objects containing the train's state, as well as handling some requests that will update some exposed configuration options.
 
-<video width="100%"  loop autoplay playsinline muted="muted">
+<section data-type="wide">
+
+<figure>
+  <video width="100%"  loop autoplay playsinline muted="muted">
     <source src="train-charge-test.mp4" type="video/mp4">
-</video>
-
-When the base light shows blue it means it has detected the Qi coil, and when the internal light turns red the train is charging from the Qi circuit. 
+  </video>
+  <figcaption>
+    When the base light shows blue it means it has detected the Qi coil, and when the internal light turns red the train is charging from the Qi circuit. 
+  </figcaption>
+</figure>
 
 </section>
 
-
-
+----
 
 ## Phase 4: Basic Homekit control
 
-[Homebridge](https://homebridge.io/) is something I've been using extensively for many years, it allows anyone to create interfaces for devices that are "smart" but otherwise not already Homekit compatible; older LIFX bulbs and [Xiaomi smart plugs](https://www.mi.com/mj-socket), for example, are something I use every day and are made infinitely more useful with Homekit/Siri integration. I'd never looked at making a complete custom accesory driver for Homebridge until now.
+[Homebridge](https://homebridge.io/) is something I've been using extensively for many years.
 
-Again I'll keep the relevant code in the [Github repo](https://github.com/benhoad/lego-hogwarts-express-iot). One thing I learned about Homekit is that even with the Homebridge acting as an intermediary the devices attached to it have to conform to a set list of device types. 
+It allows anyone to create interfaces for devices that are "smart" but otherwise not already Homekit compatible; older LIFX bulbs and [Xiaomi smart plugs](https://www.mi.com/mj-socket), for example, are something I use every day and are made infinitely more useful with Homekit/Siri integration. I'd never looked at making a complete custom accesory driver for Homebridge until now.
+
+Again I'll keep the relevant code in the [GitHub repo](https://github.com/benhoad/lego-hogwarts-express-iot). One thing I learned about Homekit is that even with the Homebridge acting as an intermediary the devices attached to it have to conform to a set list of device types. 
 
 For my simple integration I've treated the train as a "smart switch" given it only really has two states; on and off (or "on" and "going home"). 
+
 Some extra routes needed to be added to the Wemos' code to allow for some basic state checking from Homekit, essentially an "is on" request. 
 
 As for referencing the custom train driver I just packaged and installed the module locally with the npm CLI. For the train driver's configuration in homebridge it only requires the module name, accessory id, and device url - I haven't setup any form of discovery so for now I've set my router to reserve the train's IP address for consistency.
@@ -270,8 +238,11 @@ I haven't put the train through a rigorous benchmark but I have managed to (by a
 
 After a year of planning, printing, breaking, and building I finally have my train.
 
-</section>
+The next steps for this project will involve fixing some potential issues before they happen, mostly adding timeouts to events to ensure nothing is stuck in an infinite loop. If the train is running for ten or more minutes, send it home. If the train is finding home for more than two minutes, maybe it's derailed or stuck and should cut power to the motor. 
 
+Once those issues are addressed I'd like to expand the homekit integration, perhaps start out making it work like a dimmer switch, allowing for multiple speeds. Beyond simple on/off control I'd like to experiment with remote track switching and potentially multiple trains.
+
+</section>
 
 
 ## Appendix: Parts List
@@ -310,9 +281,3 @@ Below are a list of project-specific parts, should anyone else want to attempt s
 
  - [49e Linear Hall Sensor](https://www.aliexpress.com/wholesale?SearchText=49e) - can be sourced from anywhere.
 
-
-## Future Plans
-
-The next steps for this project will involve fixing some potential issues before they happen, mostly adding timeouts to events to ensure nothing is stuck in an infinite loop. If the train is running for ten or more minutes, send it home. If the train is finding home for more than two minutes, maybe it's derailed or stuck and should cut power to the motor. 
-
-Once those issues are addressed I'd like to expand the homekit integration, perhaps start out making it work like a dimmer switch, allowing for multiple speeds. Beyond simple on/off control I'd like to experiment with remote track switching and potentially multiple trains... which now that I type this out I realise I'm probably going to end up in crippling debt due to buying a house with a basement or shed to contain my inevitably giant LEGO&#174; train set/s.

@@ -67,6 +67,35 @@ body > article {
     }
   }
 
+  strong.orange {
+    color:orange;
+  }
+
+  strong.red {
+    color:red;
+  }
+
+  strong.pink {
+    color:#FF69B4;
+  }
+
+  strong.blue {
+    color:#2b7bb9;
+  }
+
+  strong.yellow {
+    color:#ffff24;
+    text-shadow: 0 0 10px rgba(0,0,0,0.7);
+  }
+
+  strong.lime {
+    color:#1b9b1b;
+  }
+
+  strong.copper{
+    color:#D17D44;
+  }  
+
   .meta {
     font-size: 16px;
     margin: 0 auto;
