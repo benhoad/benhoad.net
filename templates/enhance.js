@@ -2,6 +2,8 @@ function queryAll(selector, parent) {
   return [].slice.call(document.querySelectorAll(selector, parent));
 }
 
+this.state = {};
+
 window.addEventListener("DOMContentLoaded", function() {
   //
   // Image captions
@@ -102,6 +104,9 @@ window.addEventListener("DOMContentLoaded", function() {
 
       case "VIDEO":
       // Do nothing. We already have the video
+
+      case "CANVAS":
+
         break;
       case "IMG":
       // Do nothing. We already have the image
@@ -112,7 +117,7 @@ window.addEventListener("DOMContentLoaded", function() {
     // No background found so bail early
     if (!media) return;
 
-    section.className = "section-block";
+    section.className += " section-block";
 
     section.removeChild(section.firstElementChild);
     // Set up the fixed background
@@ -135,8 +140,123 @@ window.addEventListener("DOMContentLoaded", function() {
       }
       panel.appendChild(child);
       section.appendChild(panel);
+
+      // if canvas/frames set listener for scrolling into view
+      if(media.tagName == "CANVAS" && media.getAttribute('data-type') == 'frames'){
+        if(!this.state.frame_triggers){this.state.frame_triggers = []} 
+        let frame = parseInt(child.getAttribute('data-frame'));
+        this.state.frame_triggers.push({elem: child, parent: panel, target_frame: frame});
+      }
+
     });
+
+    if(media.tagName == "CANVAS" && media.getAttribute('data-type') == 'frames'){
+      let ctx = media.getContext('2d');
+      let start = parseInt(media.getAttribute('data-start'));
+      let end = parseInt(media.getAttribute('data-end'));
+      this.state.frames = [];
+      this.state.frame_section = section;
+
+      //preload frames
+      function loadFrames( start, end, callback){
+        
+        let loadedImageCount = 0;
+        for (var i = start; i <= end; i++){
+          var img = new Image();
+          img.onload = imageLoaded;
+          img.src = pad(i,4) + '.jpg';
+          this.state.frames[i] = img;
+        }
+
+        function imageLoaded(e) {
+          loadedImageCount++;
+          if (loadedImageCount >= end) {
+              callback();
+          }
+        }
+      }
+
+      loadFrames(start, end, function(){
+        //instantiate canvas
+        this.state.ctx = ctx;
+        this.state.current_frame = start;
+        this.state.is_animating = false;
+        setFrameTo(this.state.current_frame);
+
+        //setup listeners
+        this.state.frame_triggers.forEach(function(frame){
+          frame.parent.addEventListener('click', function(){
+            animateToFrame(frame.target_frame)
+          });
+        });
+
+        checkBounds(start,end, true);
+
+        this.window.addEventListener('scroll', function(e){
+          checkBounds(start,end);
+        })
+      });
+    }
   });
+
+  function checkBounds(start,end,immediate){
+    let bounds = this.state.frame_section.getBoundingClientRect()
+    let delta = -1 * bounds.top;
+
+    if(delta <= 0){
+      if(this.state.is_animating && delta >= window.innerHeight *-1){
+        this.state.target_frame = start;
+      }else{
+        this.state.is_animating = false;
+        this.state.target_frame = start;
+        setFrameTo(start);
+      }
+
+    }else if (delta >= bounds.height){
+        this.state.is_animating = false;
+        this.state.target_frame = end;
+        setFrameTo(end);
+      
+    }else{
+      let current_frame_id = Math.round(delta/bounds.height * this.state.frame_triggers.length);
+      if(current_frame_id >= 0 && current_frame_id <= this.state.frame_triggers.length-1){
+        if(immediate){
+          setFrameTo(this.state.frame_triggers[current_frame_id].target_frame);
+        }else{
+          animateToFrame(this.state.frame_triggers[current_frame_id].target_frame);
+        }
+        
+      }
+    }
+  }
+
+  function animateToFrame(target_frame){
+    let fps = 30;
+    this.state.target_frame = target_frame;
+
+    if(!this.state.is_animating){
+      this.state.is_animating = true;
+      function renderFrame(){
+        let delta = this.state.target_frame > this.state.current_frame ? 1 : -1;
+        if(this.state.target_frame != this.state.current_frame && this.state.is_animating){
+          this.state.current_frame += delta;
+          setFrameTo(this.state.current_frame);
+          setTimeout(function() {
+            window.requestAnimationFrame(renderFrame);
+          }, 1000 / fps);
+        }else{
+          this.state.is_animating = false;
+        }
+      };
+      window.requestAnimationFrame(renderFrame);
+    }
+  }
+
+  function setFrameTo(target_frame){
+    this.state.current_frame = target_frame;
+    this.state.ctx.drawImage(this.state.frames[target_frame],0,0);
+  }
+
 
   //
   // Galleries
@@ -165,4 +285,10 @@ window.addEventListener("DOMContentLoaded", function() {
       }
     }
   });
+
+  function pad(n, width, z) {
+    z = z || '0';
+    n = n + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+  }
 });

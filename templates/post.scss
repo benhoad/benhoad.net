@@ -34,6 +34,39 @@ body > article {
     }
   }
 
+  
+
+  span{
+    &.orange {
+      color:orange;
+    }
+
+    &.red {
+      color:red;
+    }
+
+    &.pink {
+      color:#FF69B4;
+    }
+
+    &.blue {
+      color:#2b7bb9;
+    }
+
+    &.yellow {
+      color:#ffff24;
+      text-shadow: 0 0 10px rgba(0,0,0,0.7);
+    }
+
+    &.lime {
+      color:#1b9b1b;
+    }
+
+    &.copper{
+      color:#D17D44;
+    }
+  }
+
   .meta {
     font-size: 16px;
     margin: 0 auto;
@@ -123,6 +156,8 @@ body > article {
       color: #666;
     }
   }
+
+  
 
   hr {
     border: none;
@@ -271,6 +306,8 @@ body > article {
       margin: 0 -20px;
     }
   }
+
+  
 
   /* /Third Party */
 }

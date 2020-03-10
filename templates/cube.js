@@ -1,12 +1,12 @@
-import * as THREE from 'https://raw.githubusercontent.com/mrdoob/three.js/dev/build/three.module.js';
-import {OrbitControls} from 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/jsm/controls/OrbitControls.js';
-import {GLTFLoader} from 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/jsm/loaders/GLTFLoader.js';
+import * as THREE from '/three.module.js';
+import {OrbitControls} from '/OrbitControls.js';
+import {GLTFLoader} from '/GLTFLoader.js';
 
 function main() {
-  const canvas = document.querySelector('#spinner');
+  const canvas = document.getElementById('spinner');
   const renderer = new THREE.WebGLRenderer({canvas});
-
-  const fov = 45;
+  renderer.physicallyCorrectLights = true;
+  const fov = 25;
   const aspect = 2;  // the canvas default
   const near = 0.1;
   const far = 100;
@@ -18,49 +18,37 @@ function main() {
   controls.update();
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('black');
+  scene.background = new THREE.Color('white');
 
-  {
-    const planeSize = 40;
+  let pmremGenerator = new THREE.PMREMGenerator( renderer );
+  pmremGenerator.compileEquirectangularShader();
 
-    const loader = new THREE.TextureLoader();
-    const texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/checker.png');
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    texture.magFilter = THREE.NearestFilter;
-    const repeats = planeSize / 2;
-    texture.repeat.set(repeats, repeats);
+  let content;
 
-    const planeGeo = new THREE.PlaneBufferGeometry(planeSize, planeSize);
-    const planeMat = new THREE.MeshPhongMaterial({
-      map: texture,
-      side: THREE.DoubleSide,
-    });
-    const mesh = new THREE.Mesh(planeGeo, planeMat);
-    mesh.rotation.x = Math.PI * -.5;
-    scene.add(mesh);
-  }
+  addLights();
 
-  {
-    const skyColor = 0xB1E1FF;  // light blue
-    const groundColor = 0xB97A20;  // brownish orange
-    const intensity = 1;
-    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-    scene.add(light);
-  }
+  // {
+  //   const skyColor = 0xB1E1FF;  // light blue
+  //   const groundColor = 0xFFFFFF;  // brownish orange
+  //   const intensity = 1.6;
+  //   const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+  //   scene.add(light);
+  // }
 
-  {
-    const color = 0xFFFFFF;
-    const intensity = 1;
-    const light = new THREE.DirectionalLight(color, intensity);
-    light.position.set(5, 10, 2);
-    scene.add(light);
-    scene.add(light.target);
-  }
+  // {
+  //   const color = 0xFFFFFF;
+  //   const intensity = 2;
+  //   const light = new THREE.DirectionalLight(color, intensity);
+  //   light.position.set(5, 10, 2);
+  //   scene.add(light);
+  //   scene.add(light.target);
+  // }
+
+
 
   function frameArea(sizeToFitOnScreen, boxSize, boxCenter, camera) {
     const halfSizeToFitOnScreen = sizeToFitOnScreen * 0.5;
-    const halfFovY = THREE.MathUtils.degToRad(camera.fov * .5);
+    const halfFovY = THREE.MathUtils.degToRad(camera.fov * .8);
     const distance = halfSizeToFitOnScreen / Math.tan(halfFovY);
     // compute a unit vector that points in the direction the camera is now
     // in the xz plane from the center of the box
@@ -72,7 +60,7 @@ function main() {
     // move the camera to a position distance units way from the center
     // in whatever direction the camera was from the center already
     camera.position.copy(direction.multiplyScalar(distance).add(boxCenter));
-
+    camera.position.set(5, 5, 10);
     // pick some near and far values for the frustum that
     // will contain the box.
     camera.near = boxSize / 100;
@@ -85,10 +73,25 @@ function main() {
   }
 
   {
+    
+
     const gltfLoader = new GLTFLoader();
-    gltfLoader.load('https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf', (gltf) => {
-      const root = gltf.scene;
+ 
+    gltfLoader.load('/train.gltf', (gltf) => {
+      const root = gltf.scene || gltf.scenes[0];
+      content = root;
+      updateTextureEncoding(root);
       scene.add(root);
+      
+      root.traverse((node) => {
+        if (node.isLight) {
+          
+        } else if (node.isMesh) {
+          node.material.depthWrite = !node.material.transparent;
+        }
+      });
+
+      renderer.toneMappingExposure = 0.9;
 
       // compute the box that contains all the stuff
       // from root and below
@@ -98,13 +101,37 @@ function main() {
       const boxCenter = box.getCenter(new THREE.Vector3());
 
       // set the camera to frame the box
-      frameArea(boxSize * 0.5, boxSize, boxCenter, camera);
+      frameArea(boxSize, boxSize*2, boxCenter, camera);
 
       // update the Trackball controls to handle the new size
       controls.maxDistance = boxSize * 10;
       controls.target.copy(boxCenter);
       controls.update();
+      
+      
+      
     });
+  }
+
+  function addLights () {
+    
+    const hemiLight = new THREE.HemisphereLight();
+    hemiLight.name = 'hemi_light';
+    scene.add(hemiLight);
+
+    const light1  = new THREE.AmbientLight(0xFFFFFF, 0.6);
+    light1.name = 'ambient_light';
+    camera.add( light1 );
+
+    const light2  = new THREE.DirectionalLight(0xFFFFFF, 3);
+    light2.position.copy(camera.position);
+    light2.position.set(0.5, 0, 0.866); // ~60º
+    light2.name = 'main_light';
+    camera.add( light2 );
+
+    scene.add(camera);
+
+    console.log(camera);
   }
 
   function resizeRendererToDisplaySize(renderer) {
@@ -118,14 +145,33 @@ function main() {
     return needResize;
   }
 
-  function render() {
-    if (resizeRendererToDisplaySize(renderer)) {
-      const canvas = renderer.domElement;
-      camera.aspect = canvas.clientWidth / canvas.clientHeight;
-      camera.updateProjectionMatrix();
-    }
+  function updateTextureEncoding (obj) {
+    const encoding = THREE.sRGBEncoding;
+    traverseMaterials(obj, (material) => {
+      if (material.map) material.map.encoding = encoding;
+      if (material.emissiveMap) material.emissiveMap.encoding = encoding;
+    });
+  }
+
+  function traverseMaterials (object, callback) {
+    console.log(object);
+    object.traverse((node) => {
+      if (!node.isMesh) return;
+      const materials = Array.isArray(node.material)
+        ? node.material
+        : [node.material];
+      materials.forEach(callback);
+    });
+  }
+  
+
+  function render(time) {
+    time *= 0.001;  // convert to seconds
 
     renderer.render(scene, camera);
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 4;
+    controls.update();
 
     requestAnimationFrame(render);
   }
