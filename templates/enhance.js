@@ -145,7 +145,9 @@ window.addEventListener("DOMContentLoaded", function() {
       if(media.tagName == "CANVAS" && media.getAttribute('data-type') == 'frames'){
         if(!this.state.frame_triggers){this.state.frame_triggers = []} 
         let frame = parseInt(child.getAttribute('data-frame'));
-        this.state.frame_triggers.push({elem: child, parent: panel, target_frame: frame});
+        if(frame){
+          this.state.frame_triggers.push({elem: child, parent: panel, target_frame: frame});
+        }
       }
 
     });

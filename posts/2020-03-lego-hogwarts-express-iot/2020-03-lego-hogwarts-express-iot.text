@@ -120,7 +120,9 @@ To allow for simple connection of the engine motor I routed the <strong class="r
 With the motor cable terminated with dupont connectors and the easily accessible angled pins, the passenger car and engine could be connected and separated without any deconstruction.
 </p>
 
+<p data-frame="150">
 Not shown in the 3D model was the jumper used to isolate the microcontroller from the onboard power and the 16850 cradles used to avoid soldering connector wires directly to the naked batteries. Safety and modularity were key considerations in this project.
+</p>
 
 </section>
 
