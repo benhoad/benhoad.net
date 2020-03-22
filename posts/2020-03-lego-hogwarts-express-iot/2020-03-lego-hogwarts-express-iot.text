@@ -102,7 +102,7 @@ Thankfully by design the passenger car disassembles with relative ease.
 </p>
 
 <p data-frame="60">
-Two lithium-ion <strong class="lime">16850 batteries</strong> with external protection circuits provide the off-grid power and are charged using the <strong class="copper">Qi coil</strong> housed in the custom underbelly.
+Two lithium-ion <strong class="lime">18650 batteries</strong> with external protection circuits provide the off-grid power and are charged using the <strong class="copper">Qi coil</strong> housed in the custom underbelly.
 </p>
 
 <p data-frame="90">
@@ -121,7 +121,7 @@ With the motor cable terminated with dupont connectors and the easily accessible
 </p>
 
 <p data-frame="150">
-Not shown in the 3D model was the jumper used to isolate the microcontroller from the onboard power and the 16850 cradles used to avoid soldering connector wires directly to the naked batteries. Safety and modularity were key considerations in this project.
+Not shown in the 3D model was the jumper used to isolate the microcontroller from the onboard power and the 18650 cradles used to avoid soldering connector wires directly to the naked batteries. Safety and modularity were key considerations in this project.
 </p>
 
 </section>
