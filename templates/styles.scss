@@ -1,108 +1,159 @@
+/* =========================================================================
+   Base styles, shared by every page.
+
+   `hey` inlines the whole of this file (and everything it imports) into a
+   <style> block in each page's <head>, so anything added here ships on all
+   pages; index, posts, tags and 404 alike.
+   ========================================================================= */
+
+:root {
+  --bg: #0b0b10;
+  --bg-lift: #12121b;
+  --ink: #e8e8f0;
+  --ink-soft: #c2c2d4;
+  --muted: #7a7a92;
+  --rule: rgba(232, 232, 240, 0.14);
+
+  --accent-a: #ff4fd8;
+  --accent-b: #35e0c8;
+
+  --code-bg: #12121b;
+  --code-ink: #e8e8f0;
+  --code-inline-bg: rgba(53, 224, 200, 0.14);
+
+  --font-display: "Jersey 10", "Courier New", monospace;
+  --font-ui: "Open Sans", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  --font-prose: Enriqueta, Georgia, "Times New Roman", Times, serif;
+
+  --wrap: 1180px;
+  --gutter: clamp(20px, 5vw, 56px);
+}
+
+/* ----------------------------------------------------------- light theme
+
+   Opted into per post with `theme: light` in the header list, which puts this
+   class on <html> (see post.ejs). For older posts written against a white page
+   — screenshots with white backgrounds, diagrams that assume dark-on-light —
+   where the dark treatment fights the content.
+
+   Only the palette changes. Type, layout and the site's wordmark are the same
+   on both, so a light post still reads as part of the site rather than an
+   orphan from the old design.
+
+   Every value here was measured against #fff: accents 6.4:1 and 6.1:1, ink
+   18.9:1, muted 5.3:1 — all clear of AA. The dark accents cannot simply be
+   reused; #ff4fd8 on white is 2.9:1 and #35e0c8 is 1.7:1. */
+html.theme-light {
+  --bg: #ffffff;
+  --bg-lift: #f4f4f7;
+  --ink: #111114;
+  --ink-soft: #333338;
+  --muted: #6b6b74;
+  --rule: rgba(17, 17, 20, 0.16);
+
+  --accent-a: #b01285;
+  --accent-b: #0e6f60;
+
+  /* Code blocks were dark on the old white pages; that stays. */
+  --code-bg: #1d1d22;
+  --code-ink: #f2f2f5;
+  --code-inline-bg: rgba(14, 111, 96, 0.1);
+}
+
 * {
   box-sizing: border-box;
+}
+
+/* The page background belongs on <html> and must NOT also be set on <body>.
+
+   With a background on <html>, body's stops propagating to the canvas and
+   paints as an ordinary block-level background instead — which, in the root
+   stacking context, comes after negative z-index children. That put an opaque
+   layer over every `.block-background` (enhance.scss sets z-index:-1 on them),
+   hiding the fixed video and image-sequence backgrounds in the LEGO train
+   post. Keep colour here, and nowhere else. */
+html {
+  background-color: var(--bg);
+}
+
+/* The index paints its own ground through the canvas; everything else gets a
+   soft wash off the top so the pages are not flatly black. */
+html:not(.home) {
+  background-image: radial-gradient(
+    ellipse at 50% -10%,
+    rgba(53, 224, 200, 0.09) 0%,
+    rgba(11, 11, 16, 0) 60%
+  );
+  background-repeat: no-repeat;
+}
+
+/* Legacy posts were flat white; no wash. */
+html.theme-light {
+  background-image: none;
 }
 
 body,
 html {
   margin: 0;
   padding: 0;
-  font-family: Enriqueta, Georgia, "Times New Roman", Times, serif;
+  color: var(--ink);
+  font-family: var(--font-prose);
+}
+
+/* Light text on a dark ground renders too heavy without this on macOS. On the
+   light theme it does the opposite and thins the text out, so it is scoped. */
+html:not(.theme-light) body {
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent-a);
+  color: var(--bg);
+}
+
+/* A visible focus ring is the only affordance a keyboard user gets on the
+   post list, where hover styling carries most of the state. */
+:focus-visible {
+  outline: 2px solid var(--accent-b);
+  outline-offset: 3px;
 }
 
 hr {
   border: none;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid var(--rule);
   height: 1px;
   margin: 60px auto;
   max-width: 60%;
 }
 
-#spinner{
-  width:400px;
-  height:250px;
-  margin-left:auto;
-  margin-right:auto;
-  display:block;
-}
+/* ------------------------------------------------------ inner-page header
 
-// Back link
-body > aside:first-child {
-  border-top: 2px solid #eee;
-  padding: 2em 0 60px 0;
-  height:240px;
-  margin-bottom: 150px;
+   The index has its own large masthead (index.scss). Posts, tags and the 404
+   share this compact wordmark instead; same typeface, same treatment, small
+   enough to sit above the content rather than in front of it. This replaces
+   the old blueprint title image. */
+
+body:not(.home) > aside:first-of-type {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: clamp(26px, 5vh, 48px) var(--gutter) clamp(18px, 3vh, 30px);
 
   & > a {
-    color: transparent;
-    background-position: 50% 50%;
-    background-size: contain;
-    display: block;
-    width: 100%;
-    margin: auto;
-    transition: all 0.2s ease;
-    font-size:0px;
-  }
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 4.5vw, 2.9rem);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    text-decoration: none;
+    text-shadow: 2px 2px 0 var(--accent-b);
+    transition: color 0.18s steps(2, end), text-shadow 0.18s steps(2, end);
 
-  @media screen and (max-width: 440px) {
-    padding-bottom: 30px;
-  }
-}
-
-@keyframes fade {
-  0%   { opacity: 0.6; }
-  100% { opacity: 1; }
-}
-
-.blueprint{
-  width:400px;
-  height:220px;
-  display:block;
-  background-image: linear-gradient(167deg, #5EB4EB 0%, #307DD3 81%);
-  border: 1px solid #FFFFFF;
-  box-shadow: 0 5px 4px 0 rgba(0,0,0,0.50);
-  margin-left:auto;
-  margin-right:auto;
-  margin-top:1em;
-  transform: rotate(-2deg);
-  position: absolute;
-  left: calc(50% - 200px);
-  top:20px;
-  transition: transform ease-out 0.2s;
-
-  display:flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  @media screen and (max-width: 440px) {
-    width:300px;
-    height:165px;
-    left: calc(50% - 150px);
-  }
-
-  img{
-    max-height:100%;
-    max-width:100%;
-    position: absolute;
-    animation: fade 0.2s linear 0s infinite alternate-reverse;
-
-    &:nth-child(2){
-      animation: fade 0.2s linear 0.2s infinite alternate-reverse;
-
+    &:hover,
+    &:focus-visible {
+      color: #fff;
+      text-shadow: 2px 2px 0 var(--accent-a);
     }
-  }
-
-  &.behind{
-      box-shadow: 0 2px 3px 0 rgba(0,0,0,0.20);
-      transform: rotate(-5deg);
-
-      &:hover{
-        transform: rotate(-5deg);
-      }
-  }
-
-  &:hover{
-    transform: rotate(-1deg) scale(1.02, 1.02);
   }
 }
 

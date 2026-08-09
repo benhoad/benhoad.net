@@ -1,6 +1,9 @@
 <!DOCTYPE html>
-<html lang="en-AU">
+<%# .home on the root element too: the background wash is keyed off it, and
+    that lives on the root rather than on body. See styles.scss. %>
+<html lang="en-AU" class="home">
   <head>
+    <meta charset="utf-8" />
     <title>Ben Hoad's Personal Blog</title>
     <meta
       property="og:title"
@@ -17,6 +20,7 @@
     <meta property="og:image" content="https://benhoad.net/share.jpg" />
     <meta property="og:url" content="https://benhoad.net" />
     <meta name="author" content="Ben Hoad" />
+    <meta name="theme-color" content="#0B0B10" />
 
     <meta
       name="google-site-verification"
@@ -30,59 +34,179 @@
     />
     <link type="image/png" href="/favicon.png" rel="icon" />
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css?family=Enriqueta|Open+Sans:400,700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Jersey+10&family=Enriqueta:wght@400;700&family=Open+Sans:wght@400;700&display=swap"
       rel="stylesheet"
     />
   </head>
 
-  <body>
-    <aside>
-      <a href="/">
-        Ben Hoad
+  <body class="home">
+    <canvas id="bg" aria-hidden="true"></canvas>
+    <div class="crt" aria-hidden="true"></div>
 
-        <div class="blueprint behind"> 
-        </div>
-        <div class="blueprint"> 
-          <img src="/title_frame1.png"/>
-          <img src="/title_frame2.png"/>
-        </div>
-      </a>
-    </aside>
-
-    <section class="about">
-      <p>
-        Hi, I'm Ben Hoad. I'm a Frontend Developer who sometimes makes things and other times does some stuff. 
+    <header class="masthead">
+      <a href="/" class="wordmark">benhoad.net</a>
+      <p class="strapline">
+        I build random things; sometimes they're useful, other times
+        they're not as useful.
       </p>
-      <p>
-        Here's some stuff:
-      </p>
-     
-    </section>
 
-    <section class="contents">
-      <ul>
-        <% posts.forEach(post => { %>
-        <li>
-          <a href="/<%= post.slug %>"><img src='<%= post.headers.share.replace("https://nathanhoad.net", "") %>'/></a>
-          <h2>
-            <a href="/<%= post.slug %>"><%= post.title %></a>
-          </h2>
-          <aside class="meta">
-            <%= ['January', 'February', 'March', 'April', 'May', 'June', 'July',
-            'August', 'September', 'October', 'November',
-            'December'][post.headers.published.getMonth()] %> <%=
-            post.headers.published.getFullYear() %>
-          </aside>
+      <%# Revealed by scene.js only on devices that gate device orientation
+          behind a permission prompt (iOS 13+), because that prompt has to be
+          triggered by a real tap. Everywhere else tilt either just works or
+          is unavailable, and this stays hidden. %>
+      <button id="tilt" class="tilt-toggle" type="button" hidden>
+        Tilt to look around
+      </button>
+    </header>
+
+    <main class="feed">
+      <ol class="posts">
+        <%
+        /* Anything the author wrote wins. `blurb:` is the unambiguous one —
+           hey never touches that field, so its presence means it was typed.
+
+           `description:` is harder: hey FILLS IT IN when the post omits it,
+           from the first paragraph token, so a value being present says
+           nothing about whether anyone wrote it. Since every post here opens
+           with an image, that fallback comes out as alt text plus the italic
+           caption, and it is mangled besides — the derivation strips anything
+           in parentheses with a greedy regex, which eats across the sentence.
+
+           A synthesised description can be told apart because it IS the first
+           paragraph: either it still carries the `!` of an image, or it opens
+           on the same words. Anything else was written by a person and is used
+           as-is. Verified against every post in this repo. */
+        function authoredText(post) {
+          if (post.headers.blurb) return String(post.headers.blurb);
+
+          var description = String(post.headers.description || "").trim();
+          if (!description) return "";
+
+          // Leftover image alt text; hey's derivation, never a person's.
+          if (description.match(/^\s*!/)) return "";
+
+          var alnum = function (s) {
+            return String(s).toLowerCase().replace(/[^a-z0-9]/g, "");
+          };
+
+          /* Compared on letters and digits only, because the two sides differ
+             in punctuation and spacing: hey works off the markdown source
+             (backticks intact, parens removed) and this works off the rendered
+             HTML (tags stripped to spaces). */
+          var firstPara = (post.html || "").match(/<p[^>]*>[\s\S]*?<\/p>/i);
+          if (firstPara) {
+            var opening = alnum(firstPara[0].replace(/<[^>]+>/g, " "));
+            var head = alnum(description).slice(0, 40);
+            if (head && opening.indexOf(head) === 0) return "";
+          }
+
+          return description;
+        }
+
+        function blurbFor(post) {
+          var authored = authoredText(post);
+          if (authored) return authored;
+
+          var paras = (post.html || "").match(/<p[^>]*>[\s\S]*?<\/p>/gi) || [];
+
+          for (var i = 0; i < paras.length; i++) {
+            /* Captions are italics, and the two-space line break that attaches
+               one to its image puts both in a single paragraph. Drop the image
+               and the break first: whatever is left being nothing but one <em>
+               means the paragraph is a caption, which describes the photo
+               rather than the post. Length alone would not catch it; several
+               run well past any sensible minimum. */
+            var inner = paras[i]
+              .replace(/^<p[^>]*>/i, "")
+              .replace(/<\/p>$/i, "")
+              .replace(/<img[^>]*>/gi, "")
+              .replace(/<br\s*\/?>/gi, "")
+              .trim();
+
+            if (inner.match(/^<em>[\s\S]*<\/em>$/i)) continue;
+
+            /* An image-only paragraph leaves nothing behind once the tags go,
+               which the length test catches along with any other stub line. */
+            var text = paras[i]
+              .replace(/<[^>]+>/g, " ")
+              .replace(/\s+/g, " ")
+              /* Stripping an inline link or a <code> span leaves gaps around
+                 whatever punctuation surrounded it; "Bravest Coconut ." and
+                 "( /posts/draft* )". */
+              .replace(/\s+([.,;:!?])/g, "$1")
+              .replace(/([([{])\s+/g, "$1")
+              .replace(/\s+([)\]}])/g, "$1")
+              .trim();
+
+            if (text.length < 60) continue;
+
+            /* The body is authored with HTML entities (&#174;, &frac34;), which
+               have to come back to real characters before EJS re-escapes them;
+               otherwise the numeric form shows up on the page. &amp; is decoded
+               last so "&amp;#174;" cannot turn into a character. */
+            text = text
+              .replace(/&#x([0-9a-fA-F]+);/g, function (m, hex) {
+                return String.fromCodePoint(parseInt(hex, 16));
+              })
+              .replace(/&#(\d+);/g, function (m, dec) {
+                return String.fromCodePoint(parseInt(dec, 10));
+              })
+              .replace(/&nbsp;/g, " ")
+              .replace(/&quot;/g, '"')
+              .replace(/&lt;/g, "<")
+              .replace(/&gt;/g, ">")
+              .replace(/&amp;/g, "&");
+
+            if (text.length > 165) {
+              text = text.slice(0, 165).replace(/\s+\S*$/, "") + "…";
+            }
+            return text;
+          }
+
+          return "";
+        }
+        %>
+        <% posts.forEach((post, i) => { %>
+        <li
+          class="post-row"
+          data-index="<%= i %>"
+          data-slug="<%= post.slug %>"
+          data-tags="<%= (post.headers.tags || []).join(',') %>"
+          <%
+          /* `model: thing.glb` in the post's header list. The file lives in the
+             post folder alongside its images; compilePost copies everything in
+             there; so a bare filename resolves under the post's own URL. A
+             post without one keeps the procedural primitive. */
+          if (post.headers.model) { %>
+          data-model="/<%= post.slug %>/<%= post.headers.model %>"
+          <% } %>
+        >
+          <span class="post-num" aria-hidden="true"
+            ><%= String(i + 1).padStart(2, '0') %></span
+          >
+          <div class="post-body">
+            <h2 class="post-title">
+              <a href="/<%= post.slug %>"><%= post.title %></a>
+            </h2>
+            <p class="post-meta">
+              <%= ['January', 'February', 'March', 'April', 'May', 'June',
+              'July', 'August', 'September', 'October', 'November',
+              'December'][post.headers.published.getMonth()] %> <%=
+              post.headers.published.getFullYear() %>
+            </p>
+            <p class="post-blurb"><%= blurbFor(post) %></p>
+          </div>
         </li>
         <% }) %>
-      </ul>
-    </section>
+      </ol>
+    </main>
 
     <%- include('footer') %>
 
-    
-    
-     <script src="/cheet.js"></script>
+    <script type="module" src="/scene.js"></script>
+    <script src="/cheet.js"></script>
   </body>
 </html>

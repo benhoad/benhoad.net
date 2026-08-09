@@ -1,145 +1,341 @@
-.welcome {
-  margin: 0 auto 60px auto;
-  position: relative;
-  overflow: hidden;
+/* =========================================================================
+   The index page: post list on the left, the scene.js object on the right.
 
-  background-image: url(home.png);
-  background-size: cover;
-  background-position: center;
+   The canvas is fixed behind everything at z-index 0, the CRT overlay sits
+   above it at 1, and all real content is at 2. Nothing here uses
+   position:sticky, so putting position:relative on the content wrappers is
+   safe.
+   ========================================================================= */
+
+#bg {
+  position: fixed;
+  inset: 0;
   width: 100%;
-  height: 100vh;
+  height: 100%;
+  z-index: 0;
+  display: block;
+  /* scene.js renders into a ~320x256 buffer and lets this rule do the
+     upscale; that hard-edged blow-up is most of the low-res look, so it
+     must not be smoothed. */
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  pointer-events: none;
+  /* Hidden until scene.js confirms a working WebGL context, so a browser
+     without one shows the page background rather than a black rectangle. */
+  opacity: 0;
+  transition: opacity 0.6s ease;
 
-  & > div:first-child {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background-image: url(home.gif);
-    background-size: cover;
-    background-position: center;
+  .has-webgl & {
+    opacity: 1;
   }
 
-  & > h1 {
-    text-indent: -10000px;
-    color: transparent;
-    position: absolute;
-    top: 12vh;
-    left: 50%;
-    max-width: 700px;
-    width: 90%;
-    height: 50vh;
-    transform: translate(-50%, 0);
-    background-image: url(home.svg);
-    background-repeat: no-repeat;
-    background-size: contain;
-
-    @media screen and (max-width: 440px) {
+  /* Narrow screens put the object behind the copy rather than beside it.
+     scene.js drops it into the lower part of each row, and this holds it back
+     far enough that a title crossing it is still comfortably readable. */
+  @media screen and (max-width: 899px) {
+    .has-webgl & {
+      opacity: 0.6;
     }
   }
 }
 
-.about {
-  margin: 50px auto 80px auto;
+/* Scanlines and a vignette. Both are cheap enough to leave on the compositor
+   permanently, and neither is drawn when the user has asked for less motion
+   or the display is coarse enough that the lines would alias badly. */
+.crt {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+      ellipse at 62% 45%,
+      rgba(0, 0, 0, 0) 35%,
+      rgba(0, 0, 0, 0.55) 100%
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.16) 0px,
+      rgba(0, 0, 0, 0.16) 1px,
+      rgba(0, 0, 0, 0) 1px,
+      rgba(0, 0, 0, 0) 3px
+    );
 
-  & > p {
-    font-size: 26px;
-    line-height: 38px;
-    color: #222;
-    margin: 0 auto 20px auto;
-    padding: 0;
-    max-width: 700px;
-
-    @media screen and (max-width: 440px) {
-      font-size: 22px;
-      line-height: 30px;
-      max-width: 100%;
-      padding: 0 20px;
-    }
+  @media screen and (max-width: 899px) {
+    /* At phone sizes the object sits behind the text rather than beside it,
+       so the vignette needs to darken the middle instead of the edges. */
+    background: radial-gradient(
+        ellipse at 50% 40%,
+        rgba(0, 0, 0, 0) 30%,
+        rgba(0, 0, 0, 0.62) 100%
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.16) 0px,
+        rgba(0, 0, 0, 0.16) 1px,
+        rgba(0, 0, 0, 0) 1px,
+        rgba(0, 0, 0, 0) 3px
+      );
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crt {
+    background: radial-gradient(
+      ellipse at 62% 45%,
+      rgba(0, 0, 0, 0) 35%,
+      rgba(0, 0, 0, 0.45) 100%
+    );
+  }
+}
+
+/* ------------------------------------------------------------- masthead */
+
+.masthead {
+  position: relative;
+  z-index: 2;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: clamp(48px, 9vh, 110px) var(--gutter) clamp(40px, 7vh, 80px);
+}
+
+.wordmark {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: clamp(3.4rem, 11vw, 7.5rem);
+  line-height: 0.86;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  text-decoration: none;
+  text-shadow: 3px 3px 0 var(--accent-b), 6px 6px 0 rgba(0, 0, 0, 0.55);
+  transition: text-shadow 0.18s steps(2, end), color 0.18s steps(2, end);
+
+  &:hover,
+  &:focus-visible {
+    color: #fff;
+    text-shadow: 3px 3px 0 var(--accent-a), 6px 6px 0 rgba(0, 0, 0, 0.55);
+  }
+}
+
+.strapline {
+  max-width: 30ch;
+  margin: 1.4em 0 0;
+  font-family: var(--font-ui);
+  font-size: clamp(0.95rem, 1.4vw, 1.05rem);
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* Only ever shown on devices that put device orientation behind a permission
+   prompt. `hidden` does the hiding; this just needs to not fight it. */
+.tilt-toggle {
+  display: inline-block;
+  margin-top: 1.6em;
+  padding: 0.6em 1.1em;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-b);
+  background: transparent;
+  border: 1px solid var(--accent-b);
+  border-radius: 2px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: color 0.2s ease, background-color 0.2s ease;
+
+  &[hidden] {
+    display: none;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--bg);
+    background: var(--accent-b);
+  }
+}
+
+/* ----------------------------------------------------------------- feed */
+
+.feed {
+  position: relative;
+  z-index: 2;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.posts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  /* Held to the left half on desktop so the object on the right is never
+     covered by the copy. */
+  max-width: min(100%, 620px);
+}
+
+.post-row {
+  display: grid;
+  grid-template-columns: clamp(48px, 6vw, 78px) minmax(0, 1fr);
+  column-gap: clamp(18px, 3vw, 38px);
+  align-items: start;
+  /* Tall enough that one row owns the focus line at a time; this is what
+     paces the object swaps against the scroll. */
+  min-height: 64vh;
+  padding-bottom: clamp(40px, 8vh, 90px);
+}
+
+/* Every row reads at full strength by default. scene.js puts .is-live on the
+   list once it is actually driving the selection, and only then do the
+   non-active rows drop back; see the .posts.is-live block below. That way a
+   visitor with no JS, a blocked module or no WebGL gets a plain, fully legible
+   list rather than one stuck at reading-state opacity with nothing able to
+   restore it. */
+.post-num {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 3.6vw, 3rem);
+  line-height: 1.1;
+  color: var(--accent-b);
+  font-variant-numeric: tabular-nums;
+  transition: opacity 0.5s ease, color 0.5s ease;
+}
+
+.post-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 4.4vw, 3.1rem);
+  line-height: 1.05;
+  letter-spacing: 0.01em;
 
   a {
-    color: black;
+    color: var(--ink);
+    text-decoration: none;
+    /* Underline drawn as a background so it hugs the text rather than
+       spanning the whole column, and can wipe in from the left. */
+    background-image: linear-gradient(var(--accent-a), var(--accent-a));
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 100% 2px;
+    padding-bottom: 0.12em;
+    transition: opacity 0.5s ease, background-size 0.45s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: #fff;
+      background-size: 100% 2px;
+    }
   }
 }
 
-.contents {
-  ul {
-    list-style: none;
-    padding: 0;
-    max-width: 700px;
-    margin: auto;
+.post-meta {
+  margin: 0.9em 0 0;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: opacity 0.5s ease;
+}
 
-    @media screen and (max-width: 440px) {
-      width: 100%;
-      padding: 0 20px;
+.post-blurb {
+  margin: 0.9em 0 0;
+  max-width: 44ch;
+  font-family: var(--font-ui);
+  font-size: clamp(0.94rem, 1.3vw, 1.02rem);
+  line-height: 1.75;
+  color: var(--ink-soft);
+  transition: opacity 0.5s ease;
+}
+
+/* Only once scene.js is actually driving the list do the rows it has not
+   selected drop back, so the one whose object is on screen is unmistakable. */
+.posts.is-live {
+  .post-num {
+    opacity: 0.35;
+  }
+
+  .post-title a {
+    opacity: 0.55;
+    background-size: 0% 2px;
+
+    /* Restated inside .is-live because that selector (0-3-1) outranks the
+       bare `.post-title a:hover` (0-2-1); without this the underline never
+       wipes in for a pointer or keyboard user once the list goes live. */
+    &:hover,
+    &:focus-visible {
+      opacity: 1;
+      background-size: 100% 2px;
     }
   }
 
-  img{
+  .post-meta {
+    opacity: 0.6;
+  }
+
+  .post-blurb {
+    opacity: 0.42;
+  }
+
+  .post-row.is-active {
+    .post-num {
+      opacity: 1;
+      color: var(--accent-a);
+    }
+
+    .post-title a {
+      opacity: 1;
+      background-size: 100% 2px;
+    }
+
+    .post-meta,
+    .post-blurb {
+      opacity: 1;
+    }
+  }
+}
+
+/* -------------------------------------------------------------- stacking */
+
+@media screen and (max-width: 899px) {
+  .posts {
     max-width: 100%;
   }
 
-  li {
-    margin-bottom: 60px;
-  }
-
-  a {
-    color: black;
-    font-family: "Open Sans", Arial, Helvetica, sans-serif;
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
-  h2 {
-    font-size: 26px;
-    line-height: 28px;
-    margin-bottom: 10px;
-  }
-
-  .meta {
-    font-size: 16px;
-    margin: 0 auto;
-    color: #999;
-    font-family: Arial, Helvetica, sans-serif;
+  .post-row {
+    min-height: 56vh;
   }
 }
 
+/* --------------------------------------------------------------- 404 page */
+
 .not-found {
-  max-width: 900px;
-  margin: auto;
-  //background: rgb(151, 26, 26);
-  //color: white;
-  padding: 40px;
-  padding-bottom: 20px;
-  //box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-  margin-bottom: 100px;
-  border-radius: 5px;
+  position: relative;
+  z-index: 2;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: clamp(40px, 10vh, 90px) var(--gutter);
   min-height: 40vh;
 
-  a {
-    color: black;
-  }
-
-  h1,
-  p {
-    max-width: 700px;
-    margin: auto;
-    font-family: "Open Sans", Arial, Helvetica, sans-serif;
-  }
-
   h1 {
-    font-size: 40px;
-    line-height: 50px;
-    margin-bottom: 20px;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.4rem, 7vw, 4.4rem);
+    line-height: 1.02;
+    margin: 0 0 0.6em;
+    color: var(--ink);
   }
 
   p {
-    font-size: 22px;
-    line-height: 32px;
-    margin-bottom: 20px;
+    max-width: 56ch;
+    font-family: var(--font-ui);
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--ink-soft);
+    margin: 0 0 1.1em;
+  }
+
+  a {
+    color: var(--accent-a);
   }
 }

@@ -1,6 +1,11 @@
 <!DOCTYPE html>
-<html lang="en-AU">
+<%# `theme: light` in the post's header list keeps it on the old white page.
+    The class goes on the root element, not body: the palette variables have
+    to be in scope for the page background, which lives there. See
+    styles.scss. %>
+<html lang="en-AU" class="<%= post.headers.theme === 'light' ? 'theme-light' : '' %>">
   <head>
+    <meta charset="utf-8" />
     <title><%= post.title %> - Ben Hoad</title>
     <meta property="og:title" content="<%= post.title %> - Ben Hoad" />
     <meta name="description" content="<%= post.headers.description %>" />
@@ -19,9 +24,12 @@
       content="width=device-width, minimum-scale=1.0, maximum-scale=1.0"
     />
     <link type="image/png" href="/favicon.png" rel="icon" />
+    <meta name="theme-color" content="#0B0B10" />
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css?family=Enriqueta|Open+Sans:400,700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Jersey+10&family=Enriqueta:wght@400;700&family=Open+Sans:wght@400;700&display=swap"
       rel="stylesheet"
     />
 
@@ -33,15 +41,7 @@
 
   <body>
     <aside>
-      <a href="/">
-        Ben Hoad
-        <div class="blueprint behind"> 
-        </div>
-        <div class="blueprint"> 
-          <img src="/title_frame1.png"/>
-          <img src="/title_frame2.png"/>
-        </div>
-      </a>
+      <a href="/">benhoad.net</a>
     </aside>
 
     <article>

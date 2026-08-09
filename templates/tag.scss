@@ -1,8 +1,73 @@
+/* The tag pages keep the simple stacked list; they are a filtered index, not
+   the main one, so they get none of the 3D treatment. `.contents` lives here
+   rather than in index.scss because the index no longer uses it. */
+
 .tag {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+
   & > header {
-    text-align: center;
-    font-family: "Open Sans", Georgia, "Times New Roman", Times, serif;
-    margin-bottom: 60px;
-    color: #999;
+    font-family: var(--font-display);
+    margin: clamp(20px, 5vh, 50px) 0 clamp(40px, 7vh, 70px);
+
+    h1 {
+      font-size: clamp(2.4rem, 7vw, 4.2rem);
+      line-height: 1;
+      font-weight: 400;
+      margin: 0;
+      color: var(--ink);
+      text-shadow: 3px 3px 0 var(--accent-b);
+    }
+  }
+}
+
+.contents {
+  ul {
+    list-style: none;
+    padding: 0;
+    max-width: 760px;
+    margin: 0;
+  }
+
+  li {
+    margin-bottom: clamp(28px, 5vh, 48px);
+    padding-bottom: clamp(28px, 5vh, 48px);
+    border-bottom: 1px solid var(--rule);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.6rem, 3.6vw, 2.4rem);
+    line-height: 1.08;
+    margin: 0 0 12px;
+
+    a {
+      color: var(--ink);
+      text-decoration: none;
+
+      &:hover,
+      &:focus-visible {
+        color: var(--accent-a);
+      }
+    }
+  }
+
+  .meta {
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  img {
+    max-width: 100%;
   }
 }

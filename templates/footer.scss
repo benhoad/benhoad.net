@@ -1,47 +1,54 @@
 body > footer {
-  border-top: 2px solid #ccc;
-  background: #f9f9f9;
-  padding-top: 0px;
+  position: relative;
+  /* Above the index's fixed canvas and CRT overlay, which sit at 0 and 1. */
+  z-index: 2;
+  border-top: 1px solid var(--rule);
+  background: var(--bg-lift);
   margin: 120px 0 0 0;
-  padding-bottom: 30px;
+  padding: 0 var(--gutter) 40px;
 
   & > ul {
     list-style: none;
     padding: 0;
-
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-ui);
     text-align: center;
-    margin: 0px 0 10px 0;
-    padding-top: 150px;
-    background: url(/twitter-circle.png) no-repeat top center;
-    background-size: 120px;
-    color: #666;
+    margin: 0 0 14px 0;
+    padding-top: 40px;
+    color: var(--muted);
 
     & > li {
       display: inline-block;
-      margin: 0 5px;
+      margin: 0 10px;
 
       & > a {
-        color: #666;
+        color: var(--ink-soft);
         text-decoration: none;
-        font-weight: bold;
+        font-size: 0.78rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        border-bottom: 1px solid transparent;
+        transition: color 0.2s ease, border-color 0.2s ease;
 
-        &:hover {
-          text-decoration: underline;
+        &:hover,
+        &:focus-visible {
+          color: var(--accent-b);
+          border-bottom-color: var(--accent-b);
         }
       }
     }
   }
 
   & > aside {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-ui);
     text-align: center;
-    color: #666;
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    color: var(--muted);
   }
 }
 
 .subfooter {
-  padding: 40px 0;
+  padding: 48px 0 8px;
 
   & > div {
     max-width: 700px;
@@ -49,20 +56,17 @@ body > footer {
     margin: auto;
     text-align: center;
 
-    @media screen and (max-width: 440px) {
-      padding: 0 20px;
-    }
-
     p {
-      margin: 0;
-      margin-bottom: 30px;
+      margin: 0 0 20px;
       padding: 0;
-      font-size: 22px;
-      line-height: 36px;
+      font-family: var(--font-ui);
+      font-size: clamp(1rem, 1.6vw, 1.2rem);
+      line-height: 1.8;
+      color: var(--ink-soft);
     }
 
     a {
-      color: black;
+      color: var(--accent-b);
     }
   }
 
@@ -70,8 +74,10 @@ body > footer {
     height: 40px;
     line-height: 40px;
     font-size: 18px;
-    border: 2px solid #666;
-    border-radius: 5px;
+    background: var(--bg);
+    color: var(--ink);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
     vertical-align: bottom;
     padding: 0 10px;
     width: 50%;
@@ -85,18 +91,19 @@ body > footer {
   input[type="submit"] {
     -webkit-appearance: none;
     cursor: pointer;
-    background: rgb(28, 121, 28);
+    background: var(--accent-b);
     border: none;
-    border-bottom: 2px solid rgb(18, 83, 18);
-    border-radius: 5px;
+    border-radius: 3px;
     line-height: 40px;
     height: 40px;
-    color: white;
-    font-size: 18px;
+    // Tracks the theme: dark ink on the bright dark-theme teal, white on the
+    // deeper teal the light theme uses.
+    color: var(--bg);
+    font-size: 16px;
     font-weight: bold;
     text-transform: uppercase;
-    padding: 0 15px;
-    font-family: Arial, Helvetica, sans-serif;
+    padding: 0 18px;
+    font-family: var(--font-ui);
     letter-spacing: 1px;
     vertical-align: bottom;
     margin-left: 5px;

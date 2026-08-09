@@ -4,8 +4,14 @@
   "description": "The code that powers https://benhoad.net",
   "private": true,
   "scripts": {
+    "favicon": "node tools/make-favicon.mjs",
+    "vendor:three": "node tools/vendor-three.mjs",
+    "prestart": "npm run vendor:three",
     "start": "hey run",
-    "build": "hey build"
+    "prebuild": "npm run vendor:three",
+    "build": "hey build",
+    "prepreview": "npm run build",
+    "preview": "node tools/preview.mjs"
   },
   "author": "Ben Hoad",
   "homepage": "https://github.com/benhoad/benhoad#readme",
@@ -16,7 +22,7 @@
   "license": "ISC",
   "dependencies": {
     "@nathanhoad/hey": "^1.8.1",
-    "three": "^0.113.2"
+    "three": "^0.185.1"
   },
   "overrides": {
     "node-sass": "npm:sass@^1.77.0"
