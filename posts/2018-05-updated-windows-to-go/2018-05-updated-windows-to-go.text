@@ -2,8 +2,9 @@
 
  - share: windows.jpg
  - published: 2018-05-28
- - tags: life, stuff, tech
+ - tags: tech, life, stuff
  - theme: light
+ - model: usb-drive.glb
 
 <section data-type="wide">
 
