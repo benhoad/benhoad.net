@@ -5,7 +5,7 @@
     <meta property="og:title" content="<%= post.title %> - Ben Hoad" />
     <meta name="description" content="<%= post.headers.description %>" />
     <meta property="og:description" content="<%= post.headers.description %>" />
-    <meta property="og:image" content="<%= post.headers.share %>" />
+    <meta property="og:image" content="<%= post.headers.share.replace("https://nathanhoad.net", "https://benhoad.net") %>" />
     <meta property="og:url" content="https://benhoad.net/<%= post.slug %>" />
     <meta name="author" content="Ben Hoad" />
 
