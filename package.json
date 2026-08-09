@@ -1,10 +1,11 @@
 {
   "name": "benhoad",
-  "version": "7.1.0",
+  "version": "18",
   "description": "The code that powers https://benhoad.net",
   "private": true,
   "scripts": {
-    "start": "hey run"
+    "start": "hey run",
+    "build": "hey build"
   },
   "author": "Ben Hoad",
   "homepage": "https://github.com/benhoad/benhoad#readme",
@@ -14,7 +15,10 @@
   },
   "license": "ISC",
   "dependencies": {
-    "@nathanhoad/hey": "^1.4.1",
+    "@nathanhoad/hey": "^1.8.1",
     "three": "^0.113.2"
+  },
+  "overrides": {
+    "node-sass": "npm:sass@^1.77.0"
   }
 }
