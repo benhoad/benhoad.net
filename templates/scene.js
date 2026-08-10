@@ -814,7 +814,7 @@ function start() {
     const button = document.getElementById("tilt");
     if (!button) return;
 
-    button.hidden = false;
+    // button.hidden = false;
     button.addEventListener(
       "click",
       async () => {
