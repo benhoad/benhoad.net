@@ -1,6 +1,6 @@
 // Draws the site icon from a 16x16 pixel grid and writes the PNGs.
 //
-// Run with `npm run favicon` after editing GLYPH. The output is committed —
+// Run with `npm run favicon` after editing GLYPH. The output is committed;
 // this is a design source, not a build step, so nothing in the normal build
 // depends on it.
 //

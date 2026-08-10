@@ -1,0 +1,31 @@
+<%
+/* The one description of Ben as a schema.org Person, shared by every page's
+   JSON-LD. Callers re-hydrate it; JSON.parse(include('jsonld-person'));
+   compose it into their own @graph, and reference it from other nodes via
+   {"@id": "https://benhoad.net/#ben"}. Keeping it in one file is the point:
+   the sameAs list is how Google and AI crawlers corroborate that the person
+   on this site, on GitHub and on LinkedIn are the same entity, and it must
+   not drift between templates. Keep it in sync with the profile links in
+   footer.ejs. */
+const person = {
+  "@type": "Person",
+  "@id": "https://benhoad.net/#ben",
+  name: "Ben Hoad",
+  url: "https://benhoad.net/",
+  image: "https://benhoad.net/ben-profile.jpg",
+  jobTitle: "Software Engineer",
+  description:
+    "Remote software engineer based in Australia. I build random things; sometimes they're useful, other times they're just for fun.",
+  address: {
+    "@type": "PostalAddress",
+    addressCountry: "AU"
+  },
+  sameAs: [
+    "https://github.com/benhoad",
+    "https://www.linkedin.com/in/ben-hoad",
+    "https://twitter.com/benhoad",
+    "https://www.youtube.com/channel/UCGxRytHqxnWn4kd7fBBRhDQ",
+    "https://www.instagram.com/ben_hoad/"
+  ]
+};
+%><%- JSON.stringify(person) %>

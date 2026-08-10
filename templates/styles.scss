@@ -33,7 +33,7 @@
 
    Opted into per post with `theme: light` in the header list, which puts this
    class on <html> (see post.ejs). For older posts written against a white page
-   — screenshots with white backgrounds, diagrams that assume dark-on-light —
+  ; screenshots with white backgrounds, diagrams that assume dark-on-light;
    where the dark treatment fights the content.
 
    Only the palette changes. Type, layout and the site's wordmark are the same
@@ -41,7 +41,7 @@
    orphan from the old design.
 
    Every value here was measured against #fff: accents 6.4:1 and 6.1:1, ink
-   18.9:1, muted 5.3:1 — all clear of AA. The dark accents cannot simply be
+   18.9:1, muted 5.3:1; all clear of AA. The dark accents cannot simply be
    reused; #ff4fd8 on white is 2.9:1 and #35e0c8 is 1.7:1. */
 html.theme-light {
   --bg: #ffffff;
@@ -67,7 +67,7 @@ html.theme-light {
 /* The page background belongs on <html> and must NOT also be set on <body>.
 
    With a background on <html>, body's stops propagating to the canvas and
-   paints as an ordinary block-level background instead — which, in the root
+   paints as an ordinary block-level background instead; which, in the root
    stacking context, comes after negative z-index children. That put an opaque
    layer over every `.block-background` (enhance.scss sets z-index:-1 on them),
    hiding the fixed video and image-sequence backgrounds in the LEGO train

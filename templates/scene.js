@@ -73,6 +73,40 @@ const TAG_COLOURS = {
   stuff: ["#8A9BB8", "#1E2740"],
 };
 
+/* Shading for a model that brought its own texture. Deliberately neutral: the
+   fragment computes `mix(uShadow, uLight, band) * tex`, so a grey pair turns
+   that first term into a plain light/shade multiplier and the texture's own
+   hue survives untouched. With a tag colour there instead, every model is
+   tinted — a neutral texture takes the palette's hue wholesale (a silver
+   laptop under #FFD84F reads gold), and a saturated one is destroyed outright
+   (a red train under teal #35E0C8 loses every channel to near-black).
+
+   The tag palette still drives the placeholder primitives. They carry only a
+   procedural greyscale texture, so without it they would be featureless white
+   blocks — and a mesh inside a model that has no texture of its own falls back
+   to that same placeholder texture, and to the palette with it, for exactly
+   the same reason. */
+const MODEL_SHADING = ["#FFFFFF", "#404040"];
+
+/* glTF stores baseColorFactor in *linear* space, and GLTFLoader hands it over
+   untouched because ColorManagement is off up top — while this shader works in
+   sRGB bytes throughout. Encoding it here is what makes a factor-only model
+   match what any other glTF viewer shows.
+
+   Not a guess: crt-set.glb's five factors decode through this to #8A9BB8 and
+   #35E0C8, which are exactly the TAG_COLOURS entries for `stuff` and `code`
+   that it was authored from. Read as sRGB directly they would be #41547A and
+   #09BE93, which are nothing in particular. */
+function linearToSRGB(c) {
+  return c <= 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+}
+
+/* How far a factor has to sit from white before it counts as the mesh's
+   colour rather than glTF's default. Below this a texture-less mesh keeps the
+   procedural placeholder and the tag palette, which is what an untextured,
+   uncoloured model should still get. */
+const BASE_COLOUR_EPSILON = 0.02;
+
 /* Which primitive a post gets. Still deliberately simple; a cube is the
    default and the others are just enough variation that consecutive posts do
    not look identical. Swapped for real per-post models later. */
@@ -173,6 +207,9 @@ const psxFragment = /* glsl */ `
   uniform vec3 uLight;
   uniform vec3 uShadow;
   uniform float uFade;
+  uniform float uAlphaCutoff;
+  uniform vec3 uBaseColour;
+  uniform float uEmissive;
 
   varying vec2 vUv;
   varying float vW;
@@ -195,14 +232,38 @@ const psxFragment = /* glsl */ `
 
   void main() {
     vec2 uv = vUv / vW;
-    vec3 tex = texture2D(uMap, uv).rgb;
+    vec4 texel = texture2D(uMap, uv);
+
+    /* glTF alphaMode:MASK, carried over as the source material's alphaTest.
+       Blockbench atlases are mostly empty — 50-90% of the sheet — so a face
+       mapped onto a transparent region would otherwise draw the colour behind
+       the hole, which is black. Zero means the model did not ask for cutout,
+       and the comparison then never fires. */
+    if (uAlphaCutoff > 0.0 && texel.a < uAlphaCutoff) discard;
+
+    vec3 tex = texel.rgb;
+
+    /* Back faces of a doubleSided material carry the front face's normal, so
+       lighting them unflipped drops every one of them into the shadow band. */
+    vec3 normal = normalize(vNormal);
+    if (!gl_FrontFacing) normal = -normal;
 
     // Single fixed key light, no falloff; the shading should read as flat
     // bands per face rather than a smooth gradient.
-    float lambert = max(dot(normalize(vNormal), normalize(vec3(0.45, 0.8, 0.6))), 0.0);
+    float lambert = max(dot(normal, normalize(vec3(0.45, 0.8, 0.6))), 0.0);
     float band = step(0.55, lambert) * 0.55 + step(0.18, lambert) * 0.45;
 
-    vec3 colour = mix(uShadow, uLight, band) * tex;
+    /* An emissive surface makes its own light, so it should not sit in a
+       shadow band because of where it happens to face. Forcing the top band
+       makes a screen read as lit from within rather than as a plastic panel
+       catching the key light. */
+    band = mix(band, 1.0, uEmissive);
+
+    /* uBaseColour is glTF's baseColorFactor. The spec multiplies it into the
+       base colour texture, which is what happens here; for a CAD export with
+       no texture at all it is the only colour the mesh has, and uMap is a
+       1x1 white pixel so this term carries the lot. */
+    vec3 colour = mix(uShadow, uLight, band) * tex * uBaseColour;
 
     // 15-bit quantise with the dither applied before rounding.
     float steps = 31.0;
@@ -355,16 +416,74 @@ function start() {
      the same nudge. In the animated path the loop covers both. */
   let requestRedraw = () => {};
 
-  function makeMaterial(colours, map) {
+  /* baseColorFactor, sRGB-encoded, or white when the material has none. */
+  function baseColourOf(material) {
+    if (!material || !material.color) return new THREE.Color(1, 1, 1);
+    const { r, g, b } = material.color;
+    return new THREE.Color(linearToSRGB(r), linearToSRGB(g), linearToSRGB(b));
+  }
+
+  /* emissiveFactor, same linear-to-sRGB treatment — GLTFLoader builds it with
+     the same setRGB(..., LinearSRGBColorSpace) call as the base colour.
+
+     Two deliberate departures from the glTF maths. glTF's default
+     emissiveFactor is black, and a material carrying an emissive *texture* but
+     no factor would multiply that texture away to nothing, so black is read as
+     "unset" and promoted to white. And emissiveIntensity — the
+     KHR_materials_emissive_strength value, 4.0 on the CocoVision screen — is
+     ignored outright: there is no HDR buffer or bloom here for it to mean
+     anything, so applying it would only clip the image to white. */
+  function emissiveColourOf(material) {
+    if (!material || !material.emissive) return new THREE.Color(1, 1, 1);
+    const { r, g, b } = material.emissive;
+    if (r + g + b < 0.001) return new THREE.Color(1, 1, 1);
+    return new THREE.Color(linearToSRGB(r), linearToSRGB(g), linearToSRGB(b));
+  }
+
+  function isTinted(colour) {
+    return (
+      Math.abs(1 - colour.r) > BASE_COLOUR_EPSILON ||
+      Math.abs(1 - colour.g) > BASE_COLOUR_EPSILON ||
+      Math.abs(1 - colour.b) > BASE_COLOUR_EPSILON
+    );
+  }
+
+  /* One white pixel, for meshes whose colour is entirely in baseColorFactor.
+     A CAD export like cocotest.glb has no image *and no UVs at all*, so there
+     is nothing to sample; a flat white texel lets the existing `* tex` term
+     pass the factor through untouched. Built once and shared — it never
+     varies, and every material samples it identically. */
+  let flatTexture = null;
+  function whitePixel() {
+    if (!flatTexture) {
+      flatTexture = new THREE.DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1);
+      flatTexture.colorSpace = THREE.NoColorSpace;
+      flatTexture.needsUpdate = true;
+    }
+    return flatTexture;
+  }
+
+  /* `from` is the glTF material about to be discarded, when there is one. Two
+     of its properties survive the swap because they are geometry decisions
+     rather than shading ones, and the PSX look has no opinion on either:
+     GLTFLoader turns alphaMode:MASK into alphaTest, and doubleSided into
+     side = DoubleSide. Everything else — PBR factors, normal maps, emissive —
+     is what the shader deliberately replaces. */
+  function makeMaterial(colours, map, from, emissive) {
+    const factor = emissive ? emissiveColourOf(from) : baseColourOf(from);
     const material = new THREE.ShaderMaterial({
       vertexShader: psxVertex,
       fragmentShader: psxFragment,
       transparent: true,
+      side: from ? from.side : THREE.FrontSide,
       uniforms: {
         uMap: { value: map },
         uLight: { value: new THREE.Color(colours[0]) },
         uShadow: { value: new THREE.Color(colours[1]) },
         uFade: { value: 0 },
+        uAlphaCutoff: { value: from ? from.alphaTest || 0 : 0 },
+        uBaseColour: { value: factor },
+        uEmissive: { value: emissive ? 1 : 0 },
         // Copied, not shared: ShaderMaterial clones the uniforms object it is
         // given, so a shared Vector2 would not survive anyway.
         uFrameBuffer: { value: frameBuffer.clone() },
@@ -435,20 +554,45 @@ function start() {
     model.traverse((child) => {
       if (!child.isMesh) return;
 
+      /* Four ways a mesh can get its colour, in order of preference:
+           1. its own base colour texture;
+           2. an emissive texture, when there is no base colour one. Plugging a
+              screen image into Emission is the natural thing to do in a PBR
+              modeller — it is how the CocoVision's display is authored — and
+              that slot would otherwise be invisible here. Such a material
+              usually pairs the glow with a *black* base colour, since all its
+              light is meant to come from emission, so reading it as the base
+              texture is the only way it shows at all;
+           3. a baseColorFactor with no texture (CAD exports, which often have
+              no UVs either);
+           4. none of the above: the procedural placeholder and the tag palette. */
       const own = child.material && child.material.map;
-      const map = own || placeholderTexture;
+      const glow = !own && child.material ? child.material.emissiveMap : null;
+      const flat = !own && !glow && isTinted(baseColourOf(child.material));
+      const source = own || glow;
+      const map = source || (flat ? whitePixel() : placeholderTexture);
 
-      if (own) {
+      if (source) {
         // Match the procedural textures: point-sampled, no mips, and no colour
         // space so the GPU does not decode to linear behind the shader's back.
-        own.magFilter = THREE.NearestFilter;
-        own.minFilter = THREE.NearestFilter;
-        own.generateMipmaps = false;
-        own.colorSpace = THREE.NoColorSpace;
+        source.magFilter = THREE.NearestFilter;
+        source.minFilter = THREE.NearestFilter;
+        source.generateMipmaps = false;
+        source.colorSpace = THREE.NoColorSpace;
       }
 
-      if (child.material) child.material.dispose();
-      child.material = makeMaterial(colours, map);
+      // Read before the dispose below: alphaTest and side are carried over.
+      const from = child.material;
+      // Per mesh, not per model: a textured mesh keeps its own colours, while
+      // one that fell back to the procedural texture still needs the palette.
+      const replacement = makeMaterial(
+        source || flat ? MODEL_SHADING : colours,
+        map,
+        from,
+        !!glow
+      );
+      if (from) from.dispose();
+      child.material = replacement;
       swapped.push(child.material);
     });
 

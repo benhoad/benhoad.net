@@ -1,0 +1,34 @@
+<%
+/* Posts author special characters as HTML entities (&#174;, &frac34;), which
+   have to come back to real characters before they can leave an HTML context;
+   EJS re-escaping them for an attribute, or JSON.stringify putting them in
+   JSON-LD, would otherwise ship the entity notation as literal text. Takes a
+   `text` local, outputs the decoded string. &amp; is decoded last so
+   "&amp;#174;" cannot turn into a character. */
+const decoded = String(text)
+  .replace(/&#x([0-9a-fA-F]+);/g, function (m, hex) {
+    return String.fromCodePoint(parseInt(hex, 16));
+  })
+  .replace(/&#(\d+);/g, function (m, dec) {
+    return String.fromCodePoint(parseInt(dec, 10));
+  })
+  .replace(/&nbsp;/g, " ")
+  .replace(/&frac14;/g, "¼")
+  .replace(/&frac12;/g, "½")
+  .replace(/&frac34;/g, "¾")
+  .replace(/&deg;/g, "°")
+  .replace(/&trade;/g, "™")
+  .replace(/&copy;/g, "©")
+  .replace(/&reg;/g, "®")
+  .replace(/&hellip;/g, "…")
+  .replace(/&mdash;/g, "—")
+  .replace(/&ndash;/g, "–")
+  .replace(/&lsquo;/g, "‘")
+  .replace(/&rsquo;/g, "’")
+  .replace(/&ldquo;/g, "“")
+  .replace(/&rdquo;/g, "”")
+  .replace(/&quot;/g, '"')
+  .replace(/&lt;/g, "<")
+  .replace(/&gt;/g, ">")
+  .replace(/&amp;/g, "&");
+%><%- decoded %>

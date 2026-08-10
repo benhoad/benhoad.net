@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<%# The entity home: the one page whose job is telling search engines and AI
+    crawlers who Ben is, in visible prose AND in ProfilePage JSON-LD pointing
+    at the shared Person node. Google explicitly validates "an About Me page
+    on a blog site" for ProfilePage markup. Compiled to /about/ via the
+    `pages` list in hey.json. %>
+<html lang="en-AU">
+  <head>
+    <meta charset="utf-8" />
+    <title>About Ben Hoad</title>
+    <meta property="og:title" content="About Ben Hoad" />
+    <meta
+      name="description"
+      content="Ben Hoad is a remote software engineer based in Australia who builds random things; software, hardware, LEGO contraptions; and writes about them here."
+    />
+    <meta
+      property="og:description"
+      content="Ben Hoad is a remote software engineer based in Australia who builds random things; software, hardware, LEGO contraptions; and writes about them here."
+    />
+    <meta property="og:type" content="profile" />
+    <meta property="profile:first_name" content="Ben" />
+    <meta property="profile:last_name" content="Hoad" />
+    <meta property="og:site_name" content="Ben Hoad" />
+    <meta property="og:locale" content="en_AU" />
+    <meta property="og:image" content="https://benhoad.net/ben-profile.jpg" />
+    <meta property="og:image:width" content="2331" />
+    <meta property="og:image:height" content="1000" />
+    <meta
+      property="og:image:alt"
+      content="Ben Hoad sitting in the snow in the mountains above Chamonix"
+    />
+    <meta property="og:url" content="https://benhoad.net/about/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@benhoad" />
+    <link rel="canonical" href="https://benhoad.net/about/" />
+    <meta name="author" content="Ben Hoad" />
+    <meta name="robots" content="max-image-preview:large" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="Ben Hoad"
+      href="https://benhoad.net/feed.xml"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width, minimum-scale=1.0, maximum-scale=1.0"
+    />
+    <link type="image/png" href="/favicon.png" rel="icon" />
+    <meta name="theme-color" content="#0B0B10" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Jersey+10&family=Enriqueta:wght@400;700&family=Open+Sans:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <% const person = JSON.parse(include("jsonld-person")); %>
+    <script type="application/ld+json"><%- JSON.stringify({
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "ProfilePage",
+          "@id": "https://benhoad.net/about/#page",
+          url: "https://benhoad.net/about/",
+          name: "About Ben Hoad",
+          inLanguage: "en-AU",
+          mainEntity: { "@id": "https://benhoad.net/#ben" }
+        },
+        person
+      ]
+    }) %></script>
+
+    <script src="/cheet.js"></script>
+  </head>
+
+  <body>
+    <aside>
+      <a href="/">benhoad.net</a>
+    </aside>
+
+    <article>
+      <header>
+        <h1>Hi, I'm Ben Hoad</h1>
+      </header>
+
+      <section>
+        <p>
+          I'm a remote software engineer based in Australia. I build random
+          things; sometimes they're useful, other times they're just for fun.
+          This site is where the write-ups live.
+        </p>
+
+        <p>
+          <img
+            src="/ben-profile.jpg"
+            alt="Ben Hoad sitting in the snow in the mountains above Chamonix"
+          /><br />
+          <em>Somewhere above Chamonix.</em>
+        </p>
+
+        <%# Punctuation that follows a link lives INSIDE the anchor. hey's
+            html-minifier re-wraps lines longer than 256 chars and will
+            insert a newline at any tag/text boundary, including between an
+            anchor's closing tag and a bare comma or period, where it
+            renders as a stray space. With the punctuation inside the
+            anchor there is no whitespace-free boundary left to break.
+            Post bodies are immune (they arrive through EJS output, which
+            the minifier never sees); only static template HTML needs
+            this. %>
+        <p>
+          Some of the things that have escaped the workshop: a
+          <a href="/2020-03-lego-hogwarts-express-iot">LEGO&#174; Hogwarts Express powered by IoT,</a> a
+          <a href="/2018-06-macbook-pro-2013-egpu">2013 MacBook Pro dragged into the future by an external GPU,</a> and a
+          <a href="/2018-11-hooli-signature-edition-box-3">mini PC dressed up as the Hooli Signature Edition Box 3.</a> The
+          low-poly 3D scene on the <a href="/">front page</a> is mine too.
+        </p>
+
+        <p>
+          If you want more of this sort of thing, I'm on
+          <a href="https://github.com/benhoad">GitHub,</a>
+          <a href="https://www.linkedin.com/in/ben-hoad">LinkedIn,</a>
+          <a href="https://www.youtube.com/channel/UCGxRytHqxnWn4kd7fBBRhDQ">YouTube,</a>
+          <a href="https://twitter.com/benhoad">Twitter</a> and
+          <a href="https://www.instagram.com/ben_hoad/">Instagram;</a> or
+          point a feed reader at <a href="/feed.xml">the RSS feed.</a>
+        </p>
+      </section>
+    </article>
+
+    <%- include('footer') %>
+  </body>
+</html>

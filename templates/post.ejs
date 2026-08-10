@@ -6,13 +6,84 @@
 <html lang="en-AU" class="<%= post.headers.theme === 'light' ? 'theme-light' : '' %>">
   <head>
     <meta charset="utf-8" />
-    <title><%= post.title %> - Ben Hoad</title>
-    <meta property="og:title" content="<%= post.title %> - Ben Hoad" />
-    <meta name="description" content="<%= post.headers.description %>" />
-    <meta property="og:description" content="<%= post.headers.description %>" />
-    <meta property="og:image" content="<%= post.headers.share.replace("https://nathanhoad.net", "https://benhoad.net") %>" />
-    <meta property="og:url" content="https://benhoad.net/<%= post.slug %>" />
+    <%
+    /* Titles and blurbs are authored with HTML entities; they have to come
+       back to real characters before EJS re-escapes them for an attribute or
+       JSON.stringify puts them in JSON-LD. */
+    const decodedTitle = include("decode-entities", { text: post.title });
+    let metaDescription = include("blurb", { post: post });
+    if (!metaDescription) metaDescription = String(post.headers.description || "");
+    metaDescription = include("decode-entities", { text: metaDescription });
+
+    const shareImage = post.headers.share.replace("https://nathanhoad.net", "https://benhoad.net");
+    const postUrl = "https://benhoad.net/" + post.slug + "/";
+
+    /* Local getters, not toISOString: `published:` headers are date-only
+       strings, and one has a trailing space, which V8 parses as local time
+       instead of UTC; toISOString would then shift it a day on any UTC+
+       machine. Local getters give the authored date on both AEST and CI's
+       UTC, and match how the byline below renders it. */
+    const published = post.headers.published;
+    const publishedISO = published
+      ? published.getFullYear() +
+        "-" + String(published.getMonth() + 1).padStart(2, "0") +
+        "-" + String(published.getDate()).padStart(2, "0")
+      : null;
+    %>
+    <title><%= decodedTitle %> - Ben Hoad</title>
+    <meta property="og:title" content="<%= decodedTitle %> - Ben Hoad" />
+    <meta name="description" content="<%= metaDescription %>" />
+    <meta property="og:description" content="<%= metaDescription %>" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Ben Hoad" />
+    <meta property="og:locale" content="en_AU" />
+    <meta property="og:image" content="<%= shareImage %>" />
+    <meta property="og:url" content="<%= postUrl %>" />
+    <% if (publishedISO) { %>
+    <meta property="article:published_time" content="<%= publishedISO %>" />
+    <% } %>
+    <meta property="article:author" content="https://benhoad.net/about/" />
+    <% (post.headers.tags || []).forEach(tag => { %>
+    <meta property="article:tag" content="<%= tag %>" />
+    <% }) %>
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@benhoad" />
+    <link rel="canonical" href="<%= postUrl %>" />
     <meta name="author" content="Ben Hoad" />
+    <%# Grant, never restrict: preview restrictions are documented to limit
+        what AI Overviews may quote, and max-image-preview:large is required
+        for large-image treatment in Discover. %>
+    <meta name="robots" content="max-image-preview:large" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="Ben Hoad"
+      href="https://benhoad.net/feed.xml"
+    />
+    <%# The Person node lives in jsonld-person.ejs; one source of truth;
+        and author resolves to it by @id within this same graph. %>
+    <% const person = JSON.parse(include("jsonld-person")); %>
+    <script type="application/ld+json"><%- JSON.stringify({
+      "@context": "https://schema.org",
+      "@graph": [
+        Object.assign(
+          {
+            "@type": "BlogPosting",
+            "@id": postUrl + "#post",
+            mainEntityOfPage: postUrl,
+            url: postUrl,
+            headline: decodedTitle,
+            description: metaDescription,
+            image: [shareImage],
+            keywords: (post.headers.tags || []).join(", "),
+            inLanguage: "en-AU",
+            author: { "@id": "https://benhoad.net/#ben" }
+          },
+          publishedISO ? { datePublished: publishedISO } : {}
+        ),
+        person
+      ]
+    }) %></script>
 
     <meta
       name="google-site-verification"

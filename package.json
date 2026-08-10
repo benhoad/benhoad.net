@@ -8,8 +8,10 @@
     "vendor:three": "node tools/vendor-three.mjs",
     "prestart": "npm run vendor:three",
     "start": "hey run",
+    "textures": "node tools/check-textures.mjs",
+    "textures:fix": "node tools/check-textures.mjs --fix",
     "prebuild": "npm run vendor:three",
-    "build": "hey build",
+    "build": "hey build && node tools/make-feed.mjs && node tools/check-textures.mjs --quiet",
     "prepreview": "npm run build",
     "preview": "node tools/preview.mjs"
   },

@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<%# Trailing-slash URLs throughout: GitHub Pages serves directories, so
+    /slug 301s to /slug/; the sitemap should carry the final URL, matching
+    each page's rel=canonical. The 404 page is skipped; a page that only
+    exists to say "not found" has no business being submitted for indexing. %>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://benhoad.net</loc>
+    <loc>https://benhoad.net/</loc>
     <priority>0.9</priority>
   </url>
   <% posts.forEach(post => { %>
     <url>
-      <loc>https://benhoad.net/<%= post.slug %></loc>
+      <loc>https://benhoad.net/<%= post.slug %>/</loc>
       <priority>1.0</priority>
     </url>
   <% }) %>
-  <% pages.forEach(page => { %>
+  <% pages.filter(page => page !== "404").forEach(page => { %>
     <url>
-      <loc><%= url %>/<%= page %></loc>
+      <loc><%= url %>/<%= page %>/</loc>
       <priority>0.8</priority>
     </url>
   <% }) %>
