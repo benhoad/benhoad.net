@@ -905,6 +905,17 @@ function start() {
     active = next;
     swapAt = now;
 
+    /* An arriving object leads with its front. rotation.y accumulates while a
+       post is active and nothing resets it, so a revisited object would
+       otherwise re-enter at whatever angle it happened to leave at. Snapped
+       rather than eased: at swap start the incomer is still invisible (fade 0,
+       parked a full slide off-screen), so the reset cannot be seen. The guard
+       covers the one case where it could — scrolling back mid-swap
+       re-activates the still-fading previous object, which is on screen; that
+       one keeps its angle and swings back in, which is near its front anyway. */
+    const incoming = objects[next];
+    if (!incoming.visible) incoming.rotation.y = 0;
+
     /* The dimming of non-active rows is opt-in, switched on here rather than
        being the CSS default. If this function never runs; no JS, module
        blocked, WebGL unavailable, an exception on the way in; the list keeps
