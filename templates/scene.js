@@ -383,14 +383,10 @@ function start() {
   const camera = new THREE.PerspectiveCamera(46, 1, 0.1, 100);
   camera.position.set(0, 0, 8);
 
-  /* Where the camera sits before any tilt. resize() owns this; the frame loop
-     adds the tilt offset to it rather than writing position directly, so the
-     two cannot fight over the same property. */
+  /* Where the camera sits for the current layout. resize() owns this and is
+     the only writer of camera.position — the parallax input turns the model
+     itself, so the camera holds still between resizes. */
   const cameraBase = new THREE.Vector3(0, 0, 8);
-
-  // World units the camera moves at full tilt. Derived from the frustum in
-  // resize(), alongside cameraBase, so the two always agree.
-  const tiltAmount = new THREE.Vector2(0, 0);
 
   const frameBuffer = new THREE.Vector2(FB_HEIGHT, FB_HEIGHT);
 
@@ -507,6 +503,7 @@ function start() {
     // Each object gets its own resting tilt and spin rate so the sequence
     // does not look like one object being recoloured.
     group.userData.spin = 0.16 + (hashString(slug) % 100) / 700;
+    group.userData.angle = 0;
     group.userData.tilt = ((hashString(slug + "t") % 100) / 100 - 0.5) * 0.5;
     group.userData.materials = [];
     group.rotation.x = group.userData.tilt;
@@ -695,9 +692,6 @@ function start() {
       // something the text has to compete with.
       cameraBase.set(0, 1.9, 11);
     }
-    // The frame loop re-derives position from this every frame, adding the
-    // tilt offset; this keeps a still page correctly framed before any frame
-    // has run, and is the whole story when tilt is off.
     camera.position.copy(cameraBase);
     camera.updateMatrixWorld();
 
@@ -706,16 +700,9 @@ function start() {
        object does not spend most of its transition outside the viewport (and
        then appear to pop in at the end). The margin clears the largest
        geometry radius so nothing is caught hanging off the edge at rest. */
-    // cameraBase, not camera.position: the live position carries the tilt
-    // offset, and the parking distance must not wobble with the phone.
     const halfHeight =
       Math.tan((camera.fov * Math.PI) / 360) * cameraBase.z;
     slide = halfHeight * aspect + 2.5;
-
-    tiltAmount.set(
-      halfHeight * aspect * TILT_FRACTION_X,
-      halfHeight * TILT_FRACTION_Y
-    );
 
     requestRedraw();
 
@@ -724,9 +711,10 @@ function start() {
 
   /* ---- parallax input ----
 
-     A nudge of the camera, so the object sits in the page rather than on it.
+     A turn of the object itself — the cursor (or the phone's tilt) looks
+     around the model rather than moving the camera through the page.
      Deliberately small and heavily smoothed: this is peripheral, and anything
-     bigger reads as drift rather than depth.
+     bigger reads as the object tracking the cursor rather than depth.
 
      Two sources feed the same normalised target, and neither knows about the
      other: device tilt on a phone, pointer position on a desktop. Last writer
@@ -750,15 +738,14 @@ function start() {
 
   const TILT_RANGE = 22; // degrees of tilt that reach full deflection
 
-  /* Full deflection as a fraction of what the camera can see, not as fixed
-     world units. The narrow layout pulls the camera back to z=11 but the
-     viewport is far narrower, so its frustum is about a third the width of the
-     desktop one — a fixed offset that reads as a nudge on a laptop swings the
-     object a quarter of the way across a phone. */
-  const TILT_FRACTION_X = 0.1;
-  const TILT_FRACTION_Y = 0.07;
+  /* Full deflection, in radians of model rotation. Measured on the object
+     rather than the frustum, so unlike the old camera nudge it needs no
+     per-layout scaling — the same turn reads the same on a phone and a
+     desktop. */
+  const TILT_TURN_YAW = 0.35;
+  const TILT_TURN_PITCH = 0.2;
 
-  // Both -1..1; scaled to world units per frame against the current frustum.
+  // Both -1..1; scaled to radians per frame in the loop.
   const tilt = new THREE.Vector2(0, 0);
   const tiltTarget = new THREE.Vector2(0, 0);
   let tiltOrigin = null; // first reading becomes "level", whatever it was
@@ -787,8 +774,8 @@ function start() {
       [dx, dy] = [dx * cos - dy * sin, dx * sin + dy * cos];
     }
 
-    // Moving the camera right shifts the object left, which is the direction
-    // that reads as looking around it.
+    // Tilting right turns the object's right side toward the reader, which
+    // is the direction that reads as looking around it.
     tiltTarget.set(dx, -dy);
   }
 
@@ -853,7 +840,8 @@ function start() {
         tiltTarget.set(
           clamp((event.clientX / viewW) * 2 - 1, -1, 1),
           // Cursor high on the page reads as looking from above, so the
-          // camera rises — which needs the sign flipped out of client space.
+          // object tips its top toward the reader — which needs the sign
+          // flipped out of client space.
           -clamp((event.clientY / viewH) * 2 - 1, -1, 1)
         );
       },
@@ -905,16 +893,16 @@ function start() {
     active = next;
     swapAt = now;
 
-    /* An arriving object leads with its front. rotation.y accumulates while a
-       post is active and nothing resets it, so a revisited object would
-       otherwise re-enter at whatever angle it happened to leave at. Snapped
-       rather than eased: at swap start the incomer is still invisible (fade 0,
-       parked a full slide off-screen), so the reset cannot be seen. The guard
-       covers the one case where it could — scrolling back mid-swap
+    /* An arriving object leads with its front. The spin angle accumulates
+       while a post is active and nothing resets it, so a revisited object
+       would otherwise re-enter at whatever angle it happened to leave at.
+       Snapped rather than eased: at swap start the incomer is still invisible
+       (fade 0, parked a full slide off-screen), so the reset cannot be seen.
+       The guard covers the one case where it could — scrolling back mid-swap
        re-activates the still-fading previous object, which is on screen; that
        one keeps its angle and swings back in, which is near its front anyway. */
     const incoming = objects[next];
-    if (!incoming.visible) incoming.rotation.y = 0;
+    if (!incoming.visible) incoming.userData.angle = 0;
 
     /* The dimming of non-active rows is opt-in, switched on here rather than
        being the CSS default. If this function never runs; no JS, module
@@ -968,13 +956,6 @@ function start() {
     tilt.x += (tiltTarget.x - tilt.x) * settle;
     tilt.y += (tiltTarget.y - tilt.y) * settle;
 
-    camera.position.set(
-      cameraBase.x + tilt.x * tiltAmount.x,
-      cameraBase.y + tilt.y * tiltAmount.y,
-      cameraBase.z
-    );
-    camera.updateMatrixWorld();
-
     const t = SWAP_TIME > 0 ? Math.min((now - swapAt) / SWAP_TIME, 1) : 1;
     const eased = ease(t);
 
@@ -1008,8 +989,16 @@ function start() {
       }
 
       if (!reduceMotion) {
-        group.rotation.y += delta * group.userData.spin;
-        group.rotation.x = group.userData.tilt + Math.sin(now * 0.4 + i) * 0.06;
+        /* The spin lives in its own accumulator so the parallax turn can sit
+           on top as an absolute offset — added into rotation.y directly it
+           would compound frame over frame. Cursor right shows the right side
+           (negative yaw); cursor high shows the top (positive pitch). */
+        group.userData.angle += delta * group.userData.spin;
+        group.rotation.y = group.userData.angle - tilt.x * TILT_TURN_YAW;
+        group.rotation.x =
+          group.userData.tilt +
+          Math.sin(now * 0.4 + i) * 0.06 +
+          tilt.y * TILT_TURN_PITCH;
       }
     }
 
